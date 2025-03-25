@@ -1,0 +1,7 @@
+{
+    "profile": "default",
+    "region": "us-east-1",
+    "configuration": "Debug",
+    "function-runtime": "dotnet8",
+    "function-handler": "Lambda-FrameSnap-Processor::Lambda_FrameSnap_Processor.Function::FunctionHandler"
+} 

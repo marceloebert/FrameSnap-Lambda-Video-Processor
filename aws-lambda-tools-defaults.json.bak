@@ -1,0 +1,18 @@
+{
+  "Information": [
+    "This file provides default values for the deployment wizard inside Visual Studio and the AWS Lambda commands added to the .NET Core CLI.",
+    "To learn more about the Lambda tooling, visit the AWS Toolkit for VS Code Blog: https://aws.amazon.com/blogs/developer/aws-lambda-tooling-experience-for-net-core/"
+  ],
+  "profile": "marcelo-builder",
+  "region": "us-east-1",
+  "configuration": "Release",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 1024,
+  "function-timeout": 300,
+  "function-handler": "Lambda-FrameSnap-Processor::Lambda_FrameSnap_Processor.Function::FunctionHandler",
+  "environment-variables": {
+    "BUCKET_NAME": "framesnap-video-bucket",
+    "API_BASE_URL": "http://sua-api-base-url"
+  },
+  "msbuild-parameters": "--self-contained true"
+}

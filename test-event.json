@@ -1,0 +1,20 @@
+{
+    "Records": [
+        {
+            "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+            "receiptHandle": "MessageReceiptHandle",
+            "body": "{\"Records\":[{\"eventVersion\":\"2.1\",\"eventSource\":\"aws:s3\",\"awsRegion\":\"us-east-1\",\"eventTime\":\"2025-03-25T00:43:42.172Z\",\"eventName\":\"ObjectCreated:Put\",\"userIdentity\":{\"principalId\":\"AWS:AROA2WJTGM7JTYRFNQCHZ:user3689225=ebert.marcelo@gmail.com\"},\"requestParameters\":{\"sourceIPAddress\":\"179.173.220.6\"},\"responseElements\":{\"x-amz-request-id\":\"3CZXYMJ48B2PEGA9\",\"x-amz-id-2\":\"u55iAylAeD9woHr0aT2srmWE5CrimedZvKHHD9SDIm/+cOX4k21fd6WHbz0wMZ4kK3bRh/UfoGbcjLUdsKytjIyPtuxtAjpx\"},\"s3\":{\"s3SchemaVersion\":\"1.0\",\"configurationId\":\"VideoUploadNotification\",\"bucket\":{\"name\":\"framesnap-video-bucket\",\"ownerIdentity\":{\"principalId\":\"A1ZM6TJUJBFMFZ\"},\"arn\":\"arn:aws:s3:::framesnap-video-bucket\"},\"object\":{\"key\":\"d337454c-43fc-4962-a190-5d95c0ffd0da_meu_video_top8.mp4\",\"size\":275825816,\"eTag\":\"e93fb9081a617ed3f1e68a560125257f\",\"sequencer\":\"0067E1FC2268D36BF5\"}}}]}",
+            "attributes": {
+                "ApproximateReceiveCount": "1",
+                "SentTimestamp": "1523232000000",
+                "SenderId": "123456789012",
+                "ApproximateFirstReceiveTimestamp": "1523232000001"
+            },
+            "messageAttributes": {},
+            "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+            "eventSource": "aws:sqs",
+            "eventSourceARN": "arn:aws:sqs:us-east-1:123456789012:MyQueue",
+            "awsRegion": "us-east-1"
+        }
+    ]
+} 
