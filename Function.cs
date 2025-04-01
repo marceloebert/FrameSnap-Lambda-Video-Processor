@@ -2,10 +2,11 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Model;
-using FFMpegCore;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.IO.Compression;
+using Xabe.FFmpeg;
+using Xabe.FFmpeg.Downloader;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -23,17 +24,13 @@ public class Function
     public Function()
     {
         BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
-        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://localhost:8080";
+        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a7539c5052e5a4306b61042306074bd2-1313948291.us-east-1.elb.amazonaws.com";
         
         _s3Client = new AmazonS3Client();
         _httpClient = new HttpClient();
 
-        // Configurar o FFmpeg para usar a layer na AWS Lambda
-        GlobalFFOptions.Configure(new FFOptions 
-        { 
-            BinaryFolder = "/opt/ffmpeg/bin",
-            TemporaryFilesFolder = "/tmp"
-        });
+        // Configurar o Xabe.FFmpeg para usar o diretório temporário
+        FFmpeg.SetExecutablesPath(TEMP_DIR);
     }
 
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
@@ -43,6 +40,11 @@ public class Function
             context.Logger.LogInformation("Nenhum registro SQS recebido.");
             return;
         }
+
+        // Baixar FFmpeg antes de processar os vídeos
+        context.Logger.LogInformation("Baixando FFmpeg...");
+        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
+        context.Logger.LogInformation("FFmpeg baixado com sucesso!");
 
         foreach (var message in evnt.Records)
         {
@@ -58,6 +60,14 @@ public class Function
             var s3Record = s3Event.Records.First();
             
             var videoKey = s3Record.S3.Object.Key;
+
+            // Ignorar arquivos que não são vídeos
+            if (videoKey.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Logger.LogInformation($"Ignorando arquivo ZIP: {videoKey}");
+                return;
+            }
+
             var videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
             
             context.Logger.LogInformation($"Processando vídeo: {videoKey}");
@@ -75,23 +85,27 @@ public class Function
             Directory.CreateDirectory(outputFolder);
 
             // Processar o vídeo e gerar thumbnails
-            var videoInfo = FFProbe.Analyse(localVideoPath);
-            var duration = videoInfo.Duration;
+            var mediaInfo = await FFmpeg.GetMediaInfo(localVideoPath);
+            var duration = mediaInfo.Duration;
             var interval = TimeSpan.FromSeconds(20);
 
+            var tasks = new List<Task>();
             for (var currentTime = TimeSpan.Zero; currentTime < duration; currentTime += interval)
             {
                 var outputPath = Path.Combine(outputFolder, $"frame_at_{currentTime.TotalSeconds}.jpg");
-                FFMpeg.Snapshot(localVideoPath, outputPath, new Size(1920, 1080), currentTime);
+                var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(localVideoPath, outputPath, TimeSpan.FromSeconds(currentTime.TotalSeconds));
+                tasks.Add(conversion.Start());
                 context.Logger.LogInformation($"Thumbnail gerado: {outputPath}");
             }
+
+            await Task.WhenAll(tasks);
 
             // Criar arquivo ZIP com os thumbnails
             var zipFileName = $"{videoId}_thumbnails.zip";
             var zipPath = Path.Combine(TEMP_DIR, zipFileName);
             ZipFile.CreateFromDirectory(outputFolder, zipPath);
 
-            // Upload do ZIP para S3
+            // Upload do ZIP para o S3 dentro da pasta thumbnails/
             var zipKey = $"thumbnails/{zipFileName}";
             await UploadZipToS3(zipPath, zipKey);
 
@@ -100,15 +114,16 @@ public class Function
             await UpdateDynamoMetadata(videoId, zipKey, "COMPLETED", context);
 
             // Limpar arquivos temporários
-            if (File.Exists(localVideoPath)) File.Delete(localVideoPath);
-            if (File.Exists(zipPath)) File.Delete(zipPath);
-            if (Directory.Exists(outputFolder)) Directory.Delete(outputFolder, true);
+            File.Delete(localVideoPath);
+            File.Delete(zipPath);
+            Directory.Delete(outputFolder, true);
 
             context.Logger.LogInformation($"Processamento concluído para o vídeo: {videoKey}");
         }
         catch (Exception ex)
         {
             context.Logger.LogError($"Erro ao processar mensagem: {ex.Message}");
+            context.Logger.LogError($"StackTrace: {ex.StackTrace}");
             throw;
         }
     }
