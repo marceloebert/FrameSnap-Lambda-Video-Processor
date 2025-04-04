@@ -27,19 +27,20 @@ jobs:
         run: |
           mkdir -p coverage
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=coverage/coverage.opencover.xml \
-            /p:Threshold=80 || true
+            --collect:"XPlat Code Coverage" \
+            --results-directory coverage \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover || true
 
-      - name: List coverage files (debug)
-        run: ls -R coverage
+      - name: Find generated coverage file
+        run: |
+          echo "Listando arquivos de cobertura:"
+          find coverage -name "coverage.opencover.xml"
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.opencover.xml
+          path: coverage/**/coverage.opencover.xml
 
   code-analysis:
     runs-on: ubuntu-latest
@@ -62,8 +63,8 @@ jobs:
 
       - name: Fallback coverage file (if not present)
         run: |
-          if [ ! -f coverage/coverage.opencover.xml ]; then
-            echo "Arquivo de cobertura não encontrado. Criando mock vazio para Sonar não quebrar."
+          if ! find coverage -name "coverage.opencover.xml" | grep -q .; then
+            echo "Arquivo de cobertura não encontrado. Criando mock vazio para SonarCloud não quebrar."
             mkdir -p coverage
             echo '<?xml version="1.0"?><coverage></coverage>' > coverage/coverage.opencover.xml
           fi
@@ -78,11 +79,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"marceloebert_Lambda-Framesnap-Processor" \
+          dotnet sonarscanner begin /k:"marceloebert_FrameSnap-Lambda-Video-Processor" \
             /o:"marceloebert" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml"
+            /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml"
 
       - name: Build for analysis
         run: dotnet build Lambda-FrameSnap-Processor.csproj
