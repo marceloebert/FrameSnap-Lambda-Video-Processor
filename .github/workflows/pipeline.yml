@@ -23,18 +23,18 @@ jobs:
           dotnet-version: '8.0'
 
       - name: Install dependencies
-        working-directory: Lambda-Framesnap-Processor
+        working-directory: Lambda-FrameSnap-Processor
         run: dotnet restore
 
       - name: Run Unit Tests with Coverage
-        working-directory: Lambda-Framesnap-Processor.Tests
+        working-directory: Lambda-FrameSnap-Processor.Tests
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage.xml /p:Threshold=80
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: Lambda-Framesnap-Processor.Tests/coverage.xml
+          path: Lambda-FrameSnap-Processor.Tests/coverage.xml
 
   code-analysis:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-report
-          path: Lambda-Framesnap-Processor.Tests/
+          path: Lambda-FrameSnap-Processor.Tests/
 
       - name: Install SonarCloud scanner
         run: |
@@ -67,14 +67,14 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"marceloebert_Lambda-Framesnap-Processor" \
+          dotnet sonarscanner begin /k:"marceloebert_Lambda-FrameSnap-Processor" \
             /o:"marceloebert" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="Lambda-Framesnap-Processor.Tests/coverage.xml"
+            /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/coverage.xml"
 
       - name: Build for analysis
-        run: dotnet build Lambda-Framesnap-Processor/Lambda-FrameSnap-Processor.csproj
+        run: dotnet build Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.csproj
 
       - name: End SonarCloud analysis
         env:
@@ -102,14 +102,14 @@ jobs:
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Build and package Lambda
-        working-directory: Lambda-Framesnap-Processor
-        run: dotnet lambda package -c Release -o Lambda-Framesnap-Processor.zip
+        working-directory: Lambda-FrameSnap-Processor
+        run: dotnet lambda package -c Release -o Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
         with:
           name: lambda-package
-          path: Lambda-Framesnap-Processor/Lambda-Framesnap-Processor.zip
+          path: Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -135,4 +135,4 @@ jobs:
           aws lambda update-function-code \
             --region us-east-1 \
             --function-name FrameSnapVideoProcessor \
-            --zip-file fileb://Lambda-Framesnap-Processor.zip 
+            --zip-file fileb://Lambda-FrameSnap-Processor.zip
