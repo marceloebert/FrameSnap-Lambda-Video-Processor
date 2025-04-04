@@ -26,19 +26,12 @@ namespace Lambda_FrameSnap_Processor.Tests
             _s3ClientMock = new Mock<IAmazonS3>();
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-            
+
             Environment.SetEnvironmentVariable("BUCKET_NAME", TEST_BUCKET);
             Environment.SetEnvironmentVariable("API_BASE_URL", TEST_API_URL);
-            
-            _context = new TestLambdaContext();
-            _function = new Function();
 
-            // Configurar as dependências mockadas via reflection
-            var s3ClientField = typeof(Function).GetField("_s3Client", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var httpClientField = typeof(Function).GetField("_httpClient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            
-            s3ClientField?.SetValue(_function, _s3ClientMock.Object);
-            httpClientField?.SetValue(_function, httpClient);
+            _context = new TestLambdaContext();
+            _function = new Function(_s3ClientMock.Object, httpClient);
         }
 
         [Fact]
