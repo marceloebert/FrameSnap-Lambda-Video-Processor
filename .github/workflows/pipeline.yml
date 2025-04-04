@@ -23,11 +23,10 @@ jobs:
           dotnet-version: '8.0'
 
       - name: Install dependencies
-        working-directory: FrameSnap-Lambda-Video-Processor
         run: dotnet restore
 
       - name: Run Unit Tests with Coverage
-        working-directory: FrameSnap-Lambda-Video-Processor/Lambda-FrameSnap-Processor.Tests
+        working-directory: Lambda-FrameSnap-Processor.Tests
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage.xml /p:Threshold=80
 
       - name: Upload coverage report
@@ -74,7 +73,6 @@ jobs:
             /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/coverage.xml"
 
       - name: Build for analysis
-        working-directory: FrameSnap-Lambda-Video-Processor
         run: dotnet build Lambda-FrameSnap-Processor.csproj
 
       - name: End SonarCloud analysis
@@ -102,8 +100,7 @@ jobs:
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Build and package Lambda
-        working-directory: FrameSnap-Lambda-Video-Processor
-        run: dotnet lambda package -c Release -o ../Lambda-FrameSnap-Processor.zip
+        run: dotnet lambda package -c Release -o Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
