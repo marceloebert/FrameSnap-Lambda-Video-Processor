@@ -144,5 +144,5 @@ jobs:
         run: |
           aws lambda update-function-code \
             --region us-east-1 \
-            --function-name FrameSnapVideoProcessor \
+            --function-name Lambda-FrameSnap-Processor \
             --zip-file fileb://Lambda-FrameSnap-Processor.zip
