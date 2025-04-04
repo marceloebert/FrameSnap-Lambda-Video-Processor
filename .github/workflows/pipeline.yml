@@ -31,10 +31,8 @@ jobs:
             --results-directory coverage \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover || true
 
-      - name: Find generated coverage file
-        run: |
-          echo "Listando arquivos de cobertura:"
-          find coverage -name "coverage.opencover.xml"
+      - name: Print coverage result paths (debug)
+        run: find coverage -name "coverage.opencover.xml"
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
