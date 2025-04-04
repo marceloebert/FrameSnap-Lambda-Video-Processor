@@ -1,0 +1,138 @@
+name: Build and Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGION_DEFAULT: us-east-1
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      - name: Install dependencies
+        working-directory: Lambda-Framesnap-Video-Processor
+        run: dotnet restore
+
+      - name: Run Unit Tests with Coverage
+        working-directory: Lambda-Framesnap-Video-Processor.Tests
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage.xml /p:Threshold=80
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: Lambda-Framesnap-Video-Processor.Tests/coverage.xml
+
+  code-analysis:
+    runs-on: ubuntu-latest
+    needs: unit-test
+    environment: SONAR
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: Lambda-Framesnap-Video-Processor.Tests/
+
+      - name: Install SonarCloud scanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global coverlet.console
+
+      - name: Begin SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet sonarscanner begin /k:"marceloebert_Lambda-Framesnap-Video-Processor" \
+            /o:"marceloebert" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.opencover.reportsPaths="Lambda-Framesnap-Video-Processor.Tests/coverage.xml"
+
+      - name: Build for analysis
+        run: dotnet build Lambda-Framesnap-Video-Processor/Lambda-FrameSnap-Processor.csproj
+
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+  build-and-package:
+    runs-on: ubuntu-latest
+    needs: code-analysis
+    environment:
+      name: AWS
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      - name: Install Amazon Lambda Tools
+        run: |
+          dotnet tool install -g Amazon.Lambda.Tools
+          echo "Adding ~/.dotnet/tools to PATH"
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Build and package Lambda
+        working-directory: Lambda-Framesnap-Video-Processor
+        run: dotnet lambda package -c Release -o Lambda-Framesnap-Video-Processor.zip
+
+      - name: Upload Lambda package
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: Lambda-Framesnap-Video-Processor/Lambda-Framesnap-Video-Processor.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-package
+    environment:
+      name: AWS
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.REGION_DEFAULT }}
+
+      - name: Download Lambda package
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-package
+
+      - name: Deploy Lambda to AWS
+        run: |
+          aws lambda update-function-code \
+            --region us-east-1 \
+            --function-name FrameSnapVideoProcessor \
+            --zip-file fileb://Lambda-Framesnap-Video-Processor.zip 

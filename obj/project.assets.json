@@ -174,172 +174,32 @@
             "related": ".xml"
           }
         }
-      }
-    },
-    "net8.0/linux-x64": {
-      "Amazon.Lambda.Core/2.2.0": {
+      },
+      "xunit.abstractions/2.0.3": {
         "type": "package",
         "compile": {
-          "lib/net8.0/Amazon.Lambda.Core.dll": {
+          "lib/netstandard2.0/xunit.abstractions.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Amazon.Lambda.Core.dll": {
+          "lib/netstandard2.0/xunit.abstractions.dll": {
             "related": ".xml"
           }
         }
       },
-      "Amazon.Lambda.Serialization.SystemTextJson/2.4.0": {
+      "xunit.extensibility.core/2.9.3": {
         "type": "package",
         "dependencies": {
-          "Amazon.Lambda.Core": "2.2.0"
+          "xunit.abstractions": "2.0.3"
         },
         "compile": {
-          "lib/net8.0/Amazon.Lambda.Serialization.SystemTextJson.dll": {
+          "lib/netstandard1.1/xunit.core.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net8.0/Amazon.Lambda.Serialization.SystemTextJson.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "Amazon.Lambda.SQSEvents/2.2.0": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/Amazon.Lambda.SQSEvents.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Amazon.Lambda.SQSEvents.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "Amazon.Lambda.TestUtilities/2.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Amazon.Lambda.Core": "2.0.0"
-        },
-        "compile": {
-          "lib/netstandard2.0/Amazon.Lambda.TestUtilities.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Amazon.Lambda.TestUtilities.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "AWSSDK.Core/3.7.300.2": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/AWSSDK.Core.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/AWSSDK.Core.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "AWSSDK.S3/3.7.300.2": {
-        "type": "package",
-        "dependencies": {
-          "AWSSDK.Core": "[3.7.300.2, 4.0.0)"
-        },
-        "compile": {
-          "lib/net8.0/AWSSDK.S3.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/AWSSDK.S3.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "Microsoft.Win32.SystemEvents/8.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/Microsoft.Win32.SystemEvents.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.Win32.SystemEvents.dll": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net6.0/_._": {}
-        }
-      },
-      "Newtonsoft.Json/13.0.3": {
-        "type": "package",
-        "compile": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Drawing.Common/8.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Win32.SystemEvents": "8.0.0"
-        },
-        "compile": {
-          "lib/net8.0/System.Drawing.Common.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/System.Drawing.Common.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net6.0/_._": {}
-        }
-      },
-      "Xabe.FFmpeg/5.2.6": {
-        "type": "package",
-        "dependencies": {
-          "Newtonsoft.Json": "9.0.1"
-        },
-        "compile": {
-          "lib/netstandard2.0/Xabe.FFmpeg.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Xabe.FFmpeg.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "Xabe.FFmpeg.Downloader/5.2.6": {
-        "type": "package",
-        "dependencies": {
-          "Xabe.FFmpeg": "5.2.6"
-        },
-        "compile": {
-          "lib/netstandard2.0/Xabe.FFmpeg.Downloader.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Xabe.FFmpeg.Downloader.dll": {
+          "lib/netstandard1.1/xunit.core.dll": {
             "related": ".xml"
           }
         }
@@ -604,6 +464,43 @@
         "xabe.ffmpeg.downloader.5.2.6.nupkg.sha512",
         "xabe.ffmpeg.downloader.nuspec"
       ]
+    },
+    "xunit.abstractions/2.0.3": {
+      "sha512": "pot1I4YOxlWjIb5jmwvvQNbTrZ3lJQ+jUGkGjWE3hEFM0l5gOnBWS+H3qsex68s5cO52g+44vpGzhAt+42vwKg==",
+      "type": "package",
+      "path": "xunit.abstractions/2.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net35/xunit.abstractions.dll",
+        "lib/net35/xunit.abstractions.xml",
+        "lib/netstandard1.0/xunit.abstractions.dll",
+        "lib/netstandard1.0/xunit.abstractions.xml",
+        "lib/netstandard2.0/xunit.abstractions.dll",
+        "lib/netstandard2.0/xunit.abstractions.xml",
+        "xunit.abstractions.2.0.3.nupkg.sha512",
+        "xunit.abstractions.nuspec"
+      ]
+    },
+    "xunit.extensibility.core/2.9.3": {
+      "sha512": "kf3si0YTn2a8J8eZNb+zFpwfoyvIrQ7ivNk5ZYA5yuYk1bEtMe4DxJ2CF/qsRgmEnDr7MnW1mxylBaHTZ4qErA==",
+      "type": "package",
+      "path": "xunit.extensibility.core/2.9.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "_content/README.md",
+        "_content/logo-128-transparent.png",
+        "lib/net452/xunit.core.dll",
+        "lib/net452/xunit.core.dll.tdnet",
+        "lib/net452/xunit.core.xml",
+        "lib/net452/xunit.runner.tdnet.dll",
+        "lib/net452/xunit.runner.utility.net452.dll",
+        "lib/netstandard1.1/xunit.core.dll",
+        "lib/netstandard1.1/xunit.core.xml",
+        "xunit.extensibility.core.2.9.3.nupkg.sha512",
+        "xunit.extensibility.core.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -616,7 +513,8 @@
       "Newtonsoft.Json >= 13.0.3",
       "System.Drawing.Common >= 8.0.0",
       "Xabe.FFmpeg >= 5.2.6",
-      "Xabe.FFmpeg.Downloader >= 5.2.6"
+      "Xabe.FFmpeg.Downloader >= 5.2.6",
+      "xunit.extensibility.core >= 2.9.3"
     ]
   },
   "packageFolders": {
@@ -704,6 +602,10 @@
           "Xabe.FFmpeg.Downloader": {
             "target": "Package",
             "version": "[5.2.6, )"
+          },
+          "xunit.extensibility.core": {
+            "target": "Package",
+            "version": "[2.9.3, )"
           }
         },
         "imports": [
@@ -719,15 +621,7 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-            "version": "[8.0.14, 8.0.14]"
-          },
-          {
             "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
-            "version": "[8.0.14, 8.0.14]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Runtime.linux-x64",
             "version": "[8.0.14, 8.0.14]"
           }
         ],
@@ -737,11 +631,6 @@
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
-      }
-    },
-    "runtimes": {
-      "linux-x64": {
-        "#import": []
       }
     }
   }

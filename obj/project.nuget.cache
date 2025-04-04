@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ocegOJevAjc=",
+  "dgSpecHash": "qEigcv1uVw0=",
   "success": true,
   "projectFilePath": "C:\\Users\\Marcelo\\OneDrive\\Documentos\\Pós Graduação FIAP\\FIAP-SOAT\\Hackaton\\FrameSnap\\Lambda-Framesnap-Video-Processor\\Lambda-FrameSnap-Processor.csproj",
   "expectedPackageFiles": [
@@ -15,8 +15,8 @@
     "C:\\Users\\Marcelo\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512",
     "C:\\Users\\Marcelo\\.nuget\\packages\\xabe.ffmpeg\\5.2.6\\xabe.ffmpeg.5.2.6.nupkg.sha512",
     "C:\\Users\\Marcelo\\.nuget\\packages\\xabe.ffmpeg.downloader\\5.2.6\\xabe.ffmpeg.downloader.5.2.6.nupkg.sha512",
-    "C:\\Users\\Marcelo\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\8.0.14\\microsoft.netcore.app.runtime.linux-x64.8.0.14.nupkg.sha512",
-    "C:\\Users\\Marcelo\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\8.0.14\\microsoft.aspnetcore.app.runtime.linux-x64.8.0.14.nupkg.sha512",
+    "C:\\Users\\Marcelo\\.nuget\\packages\\xunit.abstractions\\2.0.3\\xunit.abstractions.2.0.3.nupkg.sha512",
+    "C:\\Users\\Marcelo\\.nuget\\packages\\xunit.extensibility.core\\2.9.3\\xunit.extensibility.core.2.9.3.nupkg.sha512",
     "C:\\Users\\Marcelo\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.14\\microsoft.netcore.app.crossgen2.win-x64.8.0.14.nupkg.sha512"
   ],
   "logs": []

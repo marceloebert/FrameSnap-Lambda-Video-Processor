@@ -13,6 +13,8 @@ C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\Fr
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\System.Drawing.Common.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\Xabe.FFmpeg.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\Xabe.FFmpeg.Downloader.dll
+C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\xunit.abstractions.dll
+C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\xunit.core.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\obj\Debug\net8.0\Lambda-FrameSnap-Processor.csproj.AssemblyReference.cache
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\obj\Debug\net8.0\Lambda-FrameSnap-Processor.GeneratedMSBuildEditorConfig.editorconfig
