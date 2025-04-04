@@ -25,21 +25,21 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-          mkdir -p Lambda-FrameSnap-Processor.Tests/coverage
+          mkdir -p coverage
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=Lambda-FrameSnap-Processor.Tests/coverage/ \
+            /p:CoverletOutput=coverage/coverage.opencover.xml \
             /p:Threshold=80 || true
 
       - name: List coverage files (debug)
-        run: ls -R Lambda-FrameSnap-Processor.Tests/coverage
+        run: ls -R coverage
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: Lambda-FrameSnap-Processor.Tests/coverage/coverage.opencover.xml
+          path: coverage/coverage.opencover.xml
 
   code-analysis:
     runs-on: ubuntu-latest
