@@ -67,14 +67,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"marceloebert_Lambda-FrameSnap-Processor" \
+          dotnet sonarscanner begin /k:"marceloebert_Lambda-Framesnap-Processor" \
             /o:"marceloebert" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/coverage.xml"
 
       - name: Build for analysis
-        run: dotnet build Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.csproj
+        working-directory: Lambda-FrameSnap-Processor
+        run: dotnet build Lambda-FrameSnap-Processor.csproj
 
       - name: End SonarCloud analysis
         env:
@@ -98,18 +99,17 @@ jobs:
       - name: Install Amazon Lambda Tools
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
-          echo "Adding ~/.dotnet/tools to PATH"
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Build and package Lambda
         working-directory: Lambda-FrameSnap-Processor
-        run: dotnet lambda package -c Release -o Lambda-FrameSnap-Processor.zip
+        run: dotnet lambda package -c Release -o ../Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
         with:
           name: lambda-package
-          path: Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.zip
+          path: Lambda-FrameSnap-Processor.zip
 
   deploy:
     runs-on: ubuntu-latest
