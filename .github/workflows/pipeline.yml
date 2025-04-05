@@ -21,7 +21,7 @@ jobs:
           dotnet-version: '8.0'
 
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore Lambda-FrameSnap-Processor.sln
 
       - name: Run Unit Tests with Coverage
         run: |
@@ -70,7 +70,6 @@ jobs:
       - name: Install SonarCloud scanner
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet tool install --global coverlet.console
 
       - name: Begin SonarCloud analysis
         env:
@@ -86,8 +85,8 @@ jobs:
             /d:sonar.sources="." \
             /d:sonar.verbose=true
 
-      - name: Build for analysis
-        run: dotnet build Lambda-FrameSnap-Processor.sln
+      - name: Build solution
+        run: dotnet build Lambda-FrameSnap-Processor.sln --no-incremental
 
       - name: End SonarCloud analysis
         env:
