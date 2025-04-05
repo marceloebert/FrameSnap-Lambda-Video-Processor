@@ -1,45 +1,3 @@
-name: Build and Deploy Lambda
-
-on:
-  push:
-    branches:
-      - main
-
-env:
-  REGION_DEFAULT: us-east-1
-
-jobs:
-  unit-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0'
-
-      - name: Install dependencies
-        run: dotnet restore Lambda-FrameSnap-Processor.sln
-
-      - name: Run Unit Tests with Coverage
-        run: |
-          mkdir -p coverage
-          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
-            --collect:"XPlat Code Coverage" \
-            --results-directory coverage \
-            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover || true
-
-      - name: Print coverage result paths (debug)
-        run: find coverage -name "coverage.opencover.xml"
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/**/coverage.opencover.xml
-
   code-analysis:
     runs-on: ubuntu-latest
     needs: unit-test
@@ -74,7 +32,8 @@ jobs:
 
       - name: Begin SonarCloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}          
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet sonarscanner begin \
             /k:"marceloebert_FrameSnap-Lambda-Video-Processor" \
@@ -86,66 +45,12 @@ jobs:
             /d:sonar.sources=. \
             /d:sonar.verbose=true
 
-      - name: Restore and build the solution
+      - name: Restore and build main project
         run: |
-          dotnet restore Lambda-FrameSnap-Processor.sln
-          dotnet build Lambda-FrameSnap-Processor.sln --no-incremental
+          dotnet restore Lambda-FrameSnap-Processor.csproj
+          dotnet build Lambda-FrameSnap-Processor.csproj --no-incremental
 
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-  build-and-package:
-    runs-on: ubuntu-latest
-    needs: code-analysis
-    environment:
-      name: AWS
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0'
-
-      - name: Install Amazon Lambda Tools
-        run: |
-          dotnet tool install -g Amazon.Lambda.Tools
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Build and package Lambda
-        run: dotnet lambda package -c Release -o Lambda-FrameSnap-Processor.zip
-
-      - name: Upload Lambda package
-        uses: actions/upload-artifact@v4
-        with:
-          name: lambda-package
-          path: Lambda-FrameSnap-Processor.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-package
-    environment:
-      name: AWS
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ env.REGION_DEFAULT }}
-
-      - name: Download Lambda package
-        uses: actions/download-artifact@v4
-        with:
-          name: lambda-package
-
-      - name: Deploy Lambda to AWS
-        run: |
-          aws lambda update-function-code \
-            --region us-east-1 \
-            --function-name Lambda-FrameSnap-Processor \
-            --zip-file fileb://Lambda-FrameSnap-Processor.zip
