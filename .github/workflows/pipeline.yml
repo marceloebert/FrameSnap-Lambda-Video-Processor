@@ -40,13 +40,15 @@ jobs:
           name: coverage-report
           path: coverage/**/coverage.opencover.xml
 
-  code-analysis:
+   code-analysis:
     runs-on: ubuntu-latest
     needs: unit-test
     environment: SONAR
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
@@ -59,10 +61,10 @@ jobs:
           name: coverage-report
           path: coverage/
 
-      - name: Fallback coverage file (if not present)
+      - name: Fallback coverage file (se cobertura não encontrada)
         run: |
           if ! find coverage -name "coverage.opencover.xml" | grep -q .; then
-            echo "Arquivo de cobertura não encontrado. Criando mock vazio para SonarCloud não quebrar."
+            echo "Arquivo de cobertura não encontrado. Criando mock vazio para evitar falha."
             mkdir -p coverage
             echo '<?xml version="1.0"?><coverage></coverage>' > coverage/coverage.opencover.xml
           fi
@@ -74,7 +76,6 @@ jobs:
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           dotnet sonarscanner begin \
             /k:"marceloebert_FrameSnap-Lambda-Video-Processor" \
