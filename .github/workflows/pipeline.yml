@@ -83,12 +83,13 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.opencover.xml" \
-            /d:sonar.sources=.
+            /d:sonar.sources=. \
+            /d:sonar.verbose=true
 
-      - name: Restore and build project
+      - name: Restore and build the solution
         run: |
-          dotnet restore
-          dotnet build --no-incremental
+          dotnet restore Lambda-FrameSnap-Processor.sln
+          dotnet build Lambda-FrameSnap-Processor.sln --no-incremental
 
       - name: End SonarCloud analysis
         env:
