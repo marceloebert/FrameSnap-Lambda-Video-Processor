@@ -25,3 +25,5 @@ C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\Fr
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\obj\Debug\net8.0\linux-x64\ref\Lambda-FrameSnap-Processor.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\linux-x64\Xabe.FFmpeg.dll
 C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\linux-x64\Xabe.FFmpeg.Downloader.dll
+C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\linux-x64\xunit.abstractions.dll
+C:\Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\bin\Debug\net8.0\linux-x64\xunit.core.dll
