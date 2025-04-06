@@ -9,7 +9,9 @@
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>opencover</CoverletOutputFormat>
     <CoverletOutput>./coverage/coverage.opencover.xml</CoverletOutput>
-	<IsTestProject>true</IsTestProject>
+    <IsTestProject>true</IsTestProject>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,15 +19,24 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.302.15" />
+    <PackageReference Include="AWSSDK.Lambda" Version="3.7.303.48" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.305.30" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.TestUtilities" Version="2.0.0" />
-    <PackageReference Include="Amazon.S3" Version="4.0.0" />
+    <PackageReference Include="Xabe.FFmpeg" Version="5.2.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +50,7 @@
     <Using Include="Amazon.Lambda.SQSEvents" />
     <Using Include="Amazon.Lambda.TestUtilities" />
     <Using Include="Amazon.S3" />
+    <Using Include="Xabe.FFmpeg" />
   </ItemGroup>
 
 </Project>

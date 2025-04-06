@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.7475" branch-rate="0.6833" version="1.9" timestamp="1743982076" lines-covered="151" lines-valid="202" branches-covered="41" branches-valid="60">
+  <sources>
+    <source>C:\</source>
+  </sources>
+  <packages>
+    <package name="Lambda-FrameSnap-Processor" line-rate="0.7475" branch-rate="0.6833" complexity="68">
+      <classes>
+        <class name="Lambda_FrameSnap_Processor.Function" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="0.6666" branch-rate="0.5" complexity="9">
+          <methods>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="27" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Amazon.S3.IAmazonS3,System.Net.Http.HttpClient)" line-rate="0.7058" branch-rate="0.5" complexity="8">
+              <lines>
+                <line number="30" hits="44" branch="False" />
+                <line number="31" hits="44" branch="False" />
+                <line number="32" hits="44" branch="False" />
+                <line number="33" hits="44" branch="False" />
+                <line number="34" hits="44" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="82" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="36" hits="44" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="128" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="37" hits="0" branch="False" />
+                <line number="39" hits="44" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="182" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="40" hits="0" branch="False" />
+                <line number="42" hits="44" branch="False" />
+                <line number="43" hits="44" branch="False" />
+                <line number="46" hits="44" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="267" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="47" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
+                <line number="49" hits="0" branch="False" />
+                <line number="51" hits="44" branch="False" />
+                <line number="52" hits="44" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="27" hits="0" branch="False" />
+            <line number="30" hits="44" branch="False" />
+            <line number="31" hits="44" branch="False" />
+            <line number="32" hits="44" branch="False" />
+            <line number="33" hits="44" branch="False" />
+            <line number="34" hits="44" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="82" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="36" hits="44" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="128" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="37" hits="0" branch="False" />
+            <line number="39" hits="44" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="182" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="40" hits="0" branch="False" />
+            <line number="42" hits="44" branch="False" />
+            <line number="43" hits="44" branch="False" />
+            <line number="46" hits="44" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="267" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="47" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="51" hits="44" branch="False" />
+            <line number="52" hits="44" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;DownloadVideoFromS3&gt;d__9" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="0.8461" branch-rate="0.5" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0.8461" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="200" hits="19" branch="False" />
+                <line number="201" hits="19" branch="False" />
+                <line number="202" hits="19" branch="False" />
+                <line number="203" hits="19" branch="False" />
+                <line number="204" hits="19" branch="False" />
+                <line number="205" hits="19" branch="False" />
+                <line number="207" hits="19" branch="False" />
+                <line number="208" hits="19" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="277" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="209" hits="0" branch="False" />
+                <line number="210" hits="0" branch="False" />
+                <line number="213" hits="19" branch="False" />
+                <line number="214" hits="19" branch="False" />
+                <line number="215" hits="19" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="200" hits="19" branch="False" />
+            <line number="201" hits="19" branch="False" />
+            <line number="202" hits="19" branch="False" />
+            <line number="203" hits="19" branch="False" />
+            <line number="204" hits="19" branch="False" />
+            <line number="205" hits="19" branch="False" />
+            <line number="207" hits="19" branch="False" />
+            <line number="208" hits="19" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="277" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="209" hits="0" branch="False" />
+            <line number="210" hits="0" branch="False" />
+            <line number="213" hits="19" branch="False" />
+            <line number="214" hits="19" branch="False" />
+            <line number="215" hits="19" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;FunctionHandler&gt;d__7" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="55" hits="44" branch="False" />
+                <line number="56" hits="44" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="57" hits="1" branch="False" />
+                <line number="58" hits="1" branch="False" />
+                <line number="59" hits="1" branch="False" />
+                <line number="63" hits="43" branch="False" />
+                <line number="64" hits="43" branch="False" />
+                <line number="65" hits="43" branch="False" />
+                <line number="66" hits="43" branch="False" />
+                <line number="68" hits="175" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="565" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="69" hits="43" branch="False" />
+                <line number="70" hits="43" branch="False" />
+                <line number="71" hits="3" branch="False" />
+                <line number="72" hits="3" branch="False" />
+                <line number="73" hits="40" branch="False" />
+                <line number="74" hits="40" branch="False" />
+                <line number="75" hits="40" branch="False" />
+                <line number="76" hits="40" branch="False" />
+                <line number="78" hits="4" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="55" hits="44" branch="False" />
+            <line number="56" hits="44" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="57" hits="1" branch="False" />
+            <line number="58" hits="1" branch="False" />
+            <line number="59" hits="1" branch="False" />
+            <line number="63" hits="43" branch="False" />
+            <line number="64" hits="43" branch="False" />
+            <line number="65" hits="43" branch="False" />
+            <line number="66" hits="43" branch="False" />
+            <line number="68" hits="175" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="565" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="69" hits="43" branch="False" />
+            <line number="70" hits="43" branch="False" />
+            <line number="71" hits="3" branch="False" />
+            <line number="72" hits="3" branch="False" />
+            <line number="73" hits="40" branch="False" />
+            <line number="74" hits="40" branch="False" />
+            <line number="75" hits="40" branch="False" />
+            <line number="76" hits="40" branch="False" />
+            <line number="78" hits="4" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;ProcessMessageAsync&gt;d__8" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="0.6091" branch-rate="0.5625" complexity="32">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0.6091" branch-rate="0.5625" complexity="32">
+              <lines>
+                <line number="81" hits="43" branch="False" />
+                <line number="82" hits="43" branch="False" />
+                <line number="83" hits="43" branch="False" />
+                <line number="86" hits="43" branch="False" />
+                <line number="87" hits="43" branch="False" />
+                <line number="88" hits="42" branch="True" condition-coverage="75% (3/4)">
+                  <conditions>
+                    <condition number="184" type="jump" coverage="50%" />
+                    <condition number="210" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="90" hits="42" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="258" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="91" hits="2" branch="False" />
+                <line number="92" hits="2" branch="False" />
+                <line number="93" hits="2" branch="False" />
+                <line number="96" hits="40" branch="False" />
+                <line number="98" hits="40" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="383" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="99" hits="1" branch="False" />
+                <line number="100" hits="1" branch="False" />
+                <line number="101" hits="1" branch="False" />
+                <line number="104" hits="39" branch="False" />
+                <line number="105" hits="39" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="513" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="106" hits="0" branch="False" />
+                <line number="107" hits="0" branch="False" />
+                <line number="108" hits="0" branch="False" />
+                <line number="111" hits="39" branch="False" />
+                <line number="113" hits="39" branch="False" />
+                <line number="114" hits="22" branch="False" />
+                <line number="116" hits="19" branch="False" />
+                <line number="117" hits="19" branch="False" />
+                <line number="119" hits="19" branch="False" />
+                <line number="121" hits="19" branch="False" />
+                <line number="122" hits="19" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="1114" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="123" hits="1" branch="False" />
+                <line number="124" hits="1" branch="False" />
+                <line number="125" hits="1" branch="False" />
+                <line number="126" hits="19" branch="False" />
+                <line number="127" hits="18" branch="False" />
+                <line number="128" hits="1" branch="False" />
+                <line number="129" hits="1" branch="False" />
+                <line number="130" hits="1" branch="False" />
+                <line number="133" hits="18" branch="False" />
+                <line number="134" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="1403" type="jump" coverage="0%" />
+                    <condition number="1447" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="135" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="1531" type="jump" coverage="0%" />
+                    <condition number="1552" type="jump" coverage="0%" />
+                    <condition number="1599" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="141" hits="0" branch="False" />
+                <line number="142" hits="0" branch="False" />
+                <line number="145" hits="0" branch="False" />
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="149" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="2457" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="False" />
+                <line number="152" hits="0" branch="False" />
+                <line number="154" hits="0" branch="False" />
+                <line number="155" hits="0" branch="False" />
+                <line number="156" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+                <line number="159" hits="0" branch="False" />
+                <line number="160" hits="0" branch="False" />
+                <line number="162" hits="0" branch="False" />
+                <line number="163" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+                <line number="165" hits="40" branch="False" />
+                <line number="166" hits="40" branch="False" />
+                <line number="167" hits="40" branch="False" />
+                <line number="168" hits="40" branch="False" />
+                <line number="171" hits="43" branch="False" />
+                <line number="173" hits="43" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="2932" type="jump" coverage="100%" />
+                    <condition number="2972" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="174" hits="18" branch="False" />
+                <line number="176" hits="18" branch="False" />
+                <line number="177" hits="18" branch="False" />
+                <line number="178" hits="18" branch="False" />
+                <line number="179" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+                <line number="181" hits="0" branch="False" />
+                <line number="182" hits="0" branch="False" />
+                <line number="183" hits="18" branch="False" />
+                <line number="185" hits="43" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="3174" type="jump" coverage="100%" />
+                    <condition number="3214" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="186" hits="19" branch="False" />
+                <line number="188" hits="19" branch="False" />
+                <line number="189" hits="19" branch="False" />
+                <line number="190" hits="19" branch="False" />
+                <line number="191" hits="0" branch="False" />
+                <line number="192" hits="0" branch="False" />
+                <line number="193" hits="0" branch="False" />
+                <line number="194" hits="0" branch="False" />
+                <line number="195" hits="19" branch="False" />
+                <line number="196" hits="43" branch="False" />
+                <line number="197" hits="3" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="81" hits="43" branch="False" />
+            <line number="82" hits="43" branch="False" />
+            <line number="83" hits="43" branch="False" />
+            <line number="86" hits="43" branch="False" />
+            <line number="87" hits="43" branch="False" />
+            <line number="88" hits="42" branch="True" condition-coverage="75% (3/4)">
+              <conditions>
+                <condition number="184" type="jump" coverage="50%" />
+                <condition number="210" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="90" hits="42" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="258" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="91" hits="2" branch="False" />
+            <line number="92" hits="2" branch="False" />
+            <line number="93" hits="2" branch="False" />
+            <line number="96" hits="40" branch="False" />
+            <line number="98" hits="40" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="383" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="99" hits="1" branch="False" />
+            <line number="100" hits="1" branch="False" />
+            <line number="101" hits="1" branch="False" />
+            <line number="104" hits="39" branch="False" />
+            <line number="105" hits="39" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="513" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="106" hits="0" branch="False" />
+            <line number="107" hits="0" branch="False" />
+            <line number="108" hits="0" branch="False" />
+            <line number="111" hits="39" branch="False" />
+            <line number="113" hits="39" branch="False" />
+            <line number="114" hits="22" branch="False" />
+            <line number="116" hits="19" branch="False" />
+            <line number="117" hits="19" branch="False" />
+            <line number="119" hits="19" branch="False" />
+            <line number="121" hits="19" branch="False" />
+            <line number="122" hits="19" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="1114" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="123" hits="1" branch="False" />
+            <line number="124" hits="1" branch="False" />
+            <line number="125" hits="1" branch="False" />
+            <line number="126" hits="19" branch="False" />
+            <line number="127" hits="18" branch="False" />
+            <line number="128" hits="1" branch="False" />
+            <line number="129" hits="1" branch="False" />
+            <line number="130" hits="1" branch="False" />
+            <line number="133" hits="18" branch="False" />
+            <line number="134" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="1403" type="jump" coverage="0%" />
+                <condition number="1447" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="135" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="1531" type="jump" coverage="0%" />
+                <condition number="1552" type="jump" coverage="0%" />
+                <condition number="1599" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="141" hits="0" branch="False" />
+            <line number="142" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="149" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="2457" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="152" hits="0" branch="False" />
+            <line number="154" hits="0" branch="False" />
+            <line number="155" hits="0" branch="False" />
+            <line number="156" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="160" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="165" hits="40" branch="False" />
+            <line number="166" hits="40" branch="False" />
+            <line number="167" hits="40" branch="False" />
+            <line number="168" hits="40" branch="False" />
+            <line number="171" hits="43" branch="False" />
+            <line number="173" hits="43" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="2932" type="jump" coverage="100%" />
+                <condition number="2972" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="174" hits="18" branch="False" />
+            <line number="176" hits="18" branch="False" />
+            <line number="177" hits="18" branch="False" />
+            <line number="178" hits="18" branch="False" />
+            <line number="179" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="182" hits="0" branch="False" />
+            <line number="183" hits="18" branch="False" />
+            <line number="185" hits="43" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="3174" type="jump" coverage="100%" />
+                <condition number="3214" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="186" hits="19" branch="False" />
+            <line number="188" hits="19" branch="False" />
+            <line number="189" hits="19" branch="False" />
+            <line number="190" hits="19" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
+            <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="195" hits="19" branch="False" />
+            <line number="196" hits="43" branch="False" />
+            <line number="197" hits="3" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;UpdateDynamoMetadata&gt;d__12" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="274" hits="22" branch="False" />
+                <line number="276" hits="22" branch="False" />
+                <line number="277" hits="22" branch="False" />
+                <line number="278" hits="22" branch="False" />
+                <line number="279" hits="22" branch="False" />
+                <line number="281" hits="20" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="277" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="282" hits="1" branch="False" />
+                <line number="283" hits="1" branch="False" />
+                <line number="285" hits="19" branch="False" />
+                <line number="286" hits="3" branch="False" />
+                <line number="287" hits="3" branch="False" />
+                <line number="288" hits="3" branch="False" />
+                <line number="289" hits="3" branch="False" />
+                <line number="291" hits="19" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="274" hits="22" branch="False" />
+            <line number="276" hits="22" branch="False" />
+            <line number="277" hits="22" branch="False" />
+            <line number="278" hits="22" branch="False" />
+            <line number="279" hits="22" branch="False" />
+            <line number="281" hits="20" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="277" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="282" hits="1" branch="False" />
+            <line number="283" hits="1" branch="False" />
+            <line number="285" hits="19" branch="False" />
+            <line number="286" hits="3" branch="False" />
+            <line number="287" hits="3" branch="False" />
+            <line number="288" hits="3" branch="False" />
+            <line number="289" hits="3" branch="False" />
+            <line number="291" hits="19" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;UpdateRedisStatus&gt;d__11" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="12">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="12">
+              <lines>
+                <line number="230" hits="39" branch="False" />
+                <line number="231" hits="39" branch="False" />
+                <line number="232" hits="39" branch="False" />
+                <line number="233" hits="39" branch="False" />
+                <line number="235" hits="113" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="1150" type="jump" coverage="100%" />
+                    <condition number="1112" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="236" hits="74" branch="False" />
+                <line number="238" hits="74" branch="False" />
+                <line number="239" hits="74" branch="False" />
+                <line number="240" hits="74" branch="False" />
+                <line number="241" hits="74" branch="False" />
+                <line number="243" hits="26" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="375" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="244" hits="22" branch="False" />
+                <line number="245" hits="22" branch="False" />
+                <line number="246" hits="22" branch="False" />
+                <line number="248" hits="4" branch="False" />
+                <line number="249" hits="4" branch="False" />
+                <line number="250" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="508" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="251" hits="3" branch="False" />
+                <line number="252" hits="3" branch="False" />
+                <line number="253" hits="3" branch="False" />
+                <line number="254" hits="4" branch="False" />
+                <line number="255" hits="26" branch="False" />
+                <line number="256" hits="48" branch="False" />
+                <line number="257" hits="48" branch="False" />
+                <line number="258" hits="48" branch="False" />
+                <line number="259" hits="48" branch="False" />
+                <line number="260" hits="48" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="885" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="261" hits="32" branch="False" />
+                <line number="262" hits="32" branch="False" />
+                <line number="263" hits="32" branch="False" />
+                <line number="264" hits="48" branch="False" />
+                <line number="265" hits="74" branch="False" />
+                <line number="267" hits="39" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="1188" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="268" hits="17" branch="False" />
+                <line number="269" hits="17" branch="False" />
+                <line number="271" hits="22" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="230" hits="39" branch="False" />
+            <line number="231" hits="39" branch="False" />
+            <line number="232" hits="39" branch="False" />
+            <line number="233" hits="39" branch="False" />
+            <line number="235" hits="113" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="1150" type="jump" coverage="100%" />
+                <condition number="1112" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="236" hits="74" branch="False" />
+            <line number="238" hits="74" branch="False" />
+            <line number="239" hits="74" branch="False" />
+            <line number="240" hits="74" branch="False" />
+            <line number="241" hits="74" branch="False" />
+            <line number="243" hits="26" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="375" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="244" hits="22" branch="False" />
+            <line number="245" hits="22" branch="False" />
+            <line number="246" hits="22" branch="False" />
+            <line number="248" hits="4" branch="False" />
+            <line number="249" hits="4" branch="False" />
+            <line number="250" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="508" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="251" hits="3" branch="False" />
+            <line number="252" hits="3" branch="False" />
+            <line number="253" hits="3" branch="False" />
+            <line number="254" hits="4" branch="False" />
+            <line number="255" hits="26" branch="False" />
+            <line number="256" hits="48" branch="False" />
+            <line number="257" hits="48" branch="False" />
+            <line number="258" hits="48" branch="False" />
+            <line number="259" hits="48" branch="False" />
+            <line number="260" hits="48" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="885" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="261" hits="32" branch="False" />
+            <line number="262" hits="32" branch="False" />
+            <line number="263" hits="32" branch="False" />
+            <line number="264" hits="48" branch="False" />
+            <line number="265" hits="74" branch="False" />
+            <line number="267" hits="39" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="1188" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="268" hits="17" branch="False" />
+            <line number="269" hits="17" branch="False" />
+            <line number="271" hits="22" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.Function/&lt;UploadThumbnailToS3&gt;d__10" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="218" hits="0" branch="False" />
+                <line number="219" hits="0" branch="False" />
+                <line number="220" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
+                <line number="222" hits="0" branch="False" />
+                <line number="223" hits="0" branch="False" />
+                <line number="224" hits="0" branch="False" />
+                <line number="226" hits="0" branch="False" />
+                <line number="227" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="218" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="220" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="222" hits="0" branch="False" />
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.S3Event" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Records" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="296" hits="126" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="296" hits="126" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.S3EventRecord" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_S3" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="301" hits="120" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="301" hits="120" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.S3Details" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="2">
+          <methods>
+            <method name="get_Bucket" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="306" hits="80" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Object" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="307" hits="120" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="306" hits="80" branch="False" />
+            <line number="307" hits="120" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.S3Bucket" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Name" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="312" hits="80" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="312" hits="80" branch="False" />
+          </lines>
+        </class>
+        <class name="Lambda_FrameSnap_Processor.S3Object" filename="Users\Marcelo\OneDrive\Documentos\Pós Graduação FIAP\FIAP-SOAT\Hackaton\FrameSnap\Lambda-Framesnap-Video-Processor\Lambda-FrameSnap-Processor\Function.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Key" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="317" hits="120" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="317" hits="120" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

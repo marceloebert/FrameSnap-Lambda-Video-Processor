@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO.Compression;
 using Xabe.FFmpeg;
 using Xabe.FFmpeg.Downloader;
+using System.Text;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -19,7 +20,7 @@ public class Function
     private readonly HttpClient _httpClient;
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
-    private const string TEMP_DIR = "/tmp";
+    private readonly string TEMP_DIR;
 
     // Construtor padrão para produção
     public Function()
@@ -28,11 +29,24 @@ public class Function
     // Construtor com injeção de dependência para testes
     public Function(IAmazonS3 s3Client, HttpClient httpClient)
     {
-        BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
-        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a431b7e3b84cc4560b0a6f6e46f866f7-391439884.us-east-1.elb.amazonaws.com";
+        BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME");
+        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL");
+        TEMP_DIR = Environment.GetEnvironmentVariable("TEMP_DIR") ?? Path.GetTempPath();
+
+        if (string.IsNullOrEmpty(BUCKET_NAME))
+            throw new Exception("BUCKET_NAME não configurado");
+
+        if (string.IsNullOrEmpty(API_BASE_URL))
+            throw new Exception("API_BASE_URL não configurado");
 
         _s3Client = s3Client;
         _httpClient = httpClient;
+
+        // Garantir que o diretório temporário existe
+        if (!Directory.Exists(TEMP_DIR))
+        {
+            Directory.CreateDirectory(TEMP_DIR);
+        }
 
         FFmpeg.SetExecutablesPath(TEMP_DIR);
     }
@@ -45,18 +59,29 @@ public class Function
             return;
         }
 
-        context.Logger.LogInformation("Baixando FFmpeg...");
-        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
-        context.Logger.LogInformation("FFmpeg baixado com sucesso!");
-
-        foreach (var message in evnt.Records)
+        try
         {
-            await ProcessMessageAsync(message, context);
+            context.Logger.LogInformation("Baixando FFmpeg...");
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
+            context.Logger.LogInformation("FFmpeg baixado com sucesso!");
+
+            foreach (var message in evnt.Records)
+            {
+                await ProcessMessageAsync(message, context);
+            }
+        }
+        catch (Exception ex)
+        {
+            context.Logger.LogError($"Erro ao processar mensagens: {ex.Message}");
+            throw;
         }
     }
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
+        string? localVideoPath = null;
+        string? outputFolder = null;
+
         try
         {
             var s3Event = JsonConvert.DeserializeObject<S3Event>(message.Body);
@@ -77,124 +102,186 @@ public class Function
             }
 
             var videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
+            if (string.IsNullOrEmpty(videoId))
+            {
+                context.Logger.LogWarning("ID do vídeo inválido");
+                return;
+            }
 
             context.Logger.LogInformation($"Processando vídeo: {videoKey}");
 
             await UpdateRedisStatus(videoId, "PROCESSING", context);
             await UpdateDynamoMetadata(videoId, null, "PROCESSING", context);
 
-            var localVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
+            localVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
             await DownloadVideoFromS3(videoKey, localVideoPath);
 
-            var outputFolder = Path.Combine(TEMP_DIR, "images");
-            Directory.CreateDirectory(outputFolder);
-
-            var mediaInfo = await FFmpeg.GetMediaInfo(localVideoPath);
-            var duration = mediaInfo.Duration;
-            var interval = TimeSpan.FromSeconds(20);
-
-            var tasks = new List<Task>();
-            for (var currentTime = TimeSpan.Zero; currentTime < duration; currentTime += interval)
+            outputFolder = Path.Combine(TEMP_DIR, "images");
+            try
             {
-                var outputPath = Path.Combine(outputFolder, $"frame_at_{currentTime.TotalSeconds}.jpg");
-                var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(localVideoPath, outputPath, currentTime);
-                tasks.Add(conversion.Start());
-                context.Logger.LogInformation($"Thumbnail gerado: {outputPath}");
+                if (Directory.Exists(outputFolder))
+                {
+                    Directory.Delete(outputFolder, true);
+                }
+                Directory.CreateDirectory(outputFolder);
+            }
+            catch (IOException ex)
+            {
+                throw new IOException($"Não foi possível criar o diretório de saída: {ex.Message}");
             }
 
-            await Task.WhenAll(tasks);
+            var mediaInfo = await FFmpeg.GetMediaInfo(localVideoPath);
+            if (mediaInfo == null || mediaInfo.Duration <= TimeSpan.Zero)
+            {
+                throw new Exception("Metadata do vídeo inválida ou duração zero");
+            }
 
-            var zipFileName = $"{videoId}_thumbnails.zip";
-            var zipPath = Path.Combine(TEMP_DIR, zipFileName);
-            ZipFile.CreateFromDirectory(outputFolder, zipPath);
+            var videoStream = mediaInfo.VideoStreams.FirstOrDefault();
+            if (videoStream == null || videoStream.Width <= 0 || videoStream.Height <= 0)
+            {
+                throw new Exception("Stream de vídeo inválido ou dimensões inválidas");
+            }
 
-            var zipKey = $"thumbnails/{zipFileName}";
-            await UploadZipToS3(zipPath, zipKey);
+            var duration = mediaInfo.Duration;
+            var interval = TimeSpan.FromSeconds(20);
+            var thumbnailCount = (int)(duration.TotalSeconds / interval.TotalSeconds);
+
+            for (int i = 0; i < thumbnailCount; i++)
+            {
+                var timestamp = i * interval;
+                var outputPath = Path.Combine(outputFolder, $"thumbnail_{i}.jpg");
+
+                await FFmpeg.Conversions.New()
+                    .AddParameter($"-i \"{localVideoPath}\" -ss {timestamp.TotalSeconds} -vframes 1 -f image2 \"{outputPath}\"")
+                    .Start();
+
+                var thumbnailKey = $"thumbnails/{videoId}/thumbnail_{i}.jpg";
+                await UploadThumbnailToS3(outputPath, thumbnailKey);
+            }
 
             await UpdateRedisStatus(videoId, "COMPLETED", context);
-            await UpdateDynamoMetadata(videoId, zipKey, "COMPLETED", context);
-
-            File.Delete(localVideoPath);
-            File.Delete(zipPath);
-            Directory.Delete(outputFolder, true);
-
-            context.Logger.LogInformation($"Processamento concluído para o vídeo: {videoKey}");
+            await UpdateDynamoMetadata(videoId, thumbnailCount, "COMPLETED", context);
         }
         catch (Exception ex)
         {
             context.Logger.LogError($"Erro ao processar mensagem: {ex.Message}");
-            context.Logger.LogError($"StackTrace: {ex.StackTrace}");
             throw;
+        }
+        finally
+        {
+            // Limpeza
+            if (outputFolder != null && Directory.Exists(outputFolder))
+            {
+                try
+                {
+                    Directory.Delete(outputFolder, true);
+                }
+                catch (Exception ex)
+                {
+                    context.Logger.LogWarning($"Erro ao limpar diretório de saída: {ex.Message}");
+                }
+            }
+
+            if (localVideoPath != null && File.Exists(localVideoPath))
+            {
+                try
+                {
+                    File.Delete(localVideoPath);
+                }
+                catch (Exception ex)
+                {
+                    context.Logger.LogWarning($"Erro ao limpar arquivo de vídeo: {ex.Message}");
+                }
+            }
         }
     }
 
     private async Task DownloadVideoFromS3(string key, string localPath)
     {
-        var response = await _s3Client.GetObjectAsync(new GetObjectRequest
+        var request = new GetObjectRequest
         {
             BucketName = BUCKET_NAME,
             Key = key
-        });
+        };
+
+        using var response = await _s3Client.GetObjectAsync(request);
+        if (response.ResponseStream.Length == 0)
+        {
+            throw new Exception("Arquivo de vídeo vazio");
+        }
 
         using var fileStream = File.Create(localPath);
         await response.ResponseStream.CopyToAsync(fileStream);
     }
 
-    private async Task UploadZipToS3(string localPath, string key)
+    private async Task UploadThumbnailToS3(string localPath, string key)
     {
-        await _s3Client.PutObjectAsync(new PutObjectRequest
+        var request = new PutObjectRequest
         {
             BucketName = BUCKET_NAME,
             Key = key,
             FilePath = localPath
-        });
+        };
+
+        await _s3Client.PutObjectAsync(request);
     }
 
     private async Task UpdateRedisStatus(string videoId, string status, ILambdaContext context)
     {
-        try
+        var maxRetries = 3;
+        var retryCount = 0;
+        var success = false;
+
+        while (retryCount < maxRetries && !success)
         {
-            context.Logger.LogInformation($"Atualizando status no Redis para vídeo {videoId}: {status}");
-            var url = $"{API_BASE_URL}/videos/{videoId}/status";
+            try
+            {
+                var response = await _httpClient.PostAsync(
+                    $"{API_BASE_URL}/status",
+                    new StringContent(JsonConvert.SerializeObject(new { videoId, status }), Encoding.UTF8, "application/json"));
 
-            var content = new StringContent(
-                JsonConvert.SerializeObject(new { status }),
-                System.Text.Encoding.UTF8,
-                "application/json"
-            );
-
-            var response = await _httpClient.PutAsync(url, content);
-            response.EnsureSuccessStatusCode();
+                if (response.IsSuccessStatusCode)
+                {
+                    success = true;
+                }
+                else
+                {
+                    retryCount++;
+                    if (retryCount < maxRetries)
+                    {
+                        await Task.Delay(1000 * retryCount); // Backoff exponencial
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogError($"Erro ao atualizar status no Redis: {ex.Message}");
+                retryCount++;
+                if (retryCount < maxRetries)
+                {
+                    await Task.Delay(1000 * retryCount);
+                }
+            }
         }
-        catch (Exception ex)
+
+        if (!success)
         {
-            context.Logger.LogError($"Erro ao atualizar status no Redis: {ex.Message}");
-            throw;
+            throw new HttpRequestException("Status update failed after multiple retries");
         }
     }
 
-    private async Task UpdateDynamoMetadata(string videoId, string? zipKey, string status, ILambdaContext context)
+    private async Task UpdateDynamoMetadata(string videoId, int? thumbnailCount, string status, ILambdaContext context)
     {
         try
         {
-            context.Logger.LogInformation($"Atualizando metadados no DynamoDB para vídeo {videoId}");
-            var url = $"{API_BASE_URL}/videos/{videoId}";
+            var response = await _httpClient.PostAsync(
+                $"{API_BASE_URL}/metadata",
+                new StringContent(JsonConvert.SerializeObject(new { videoId, thumbnailCount, status }), Encoding.UTF8, "application/json"));
 
-            var metadata = new
+            if (!response.IsSuccessStatusCode)
             {
-                thumbnailFileName = zipKey,
-                thumbnailUrl = zipKey != null ? $"https://{BUCKET_NAME}.s3.amazonaws.com/{zipKey}" : null,
-                status = status
-            };
-
-            var content = new StringContent(
-                JsonConvert.SerializeObject(metadata),
-                System.Text.Encoding.UTF8,
-                "application/json"
-            );
-
-            var response = await _httpClient.PutAsync(url, content);
-            response.EnsureSuccessStatusCode();
+                throw new HttpRequestException("Metadata update failed");
+            }
         }
         catch (Exception ex)
         {
