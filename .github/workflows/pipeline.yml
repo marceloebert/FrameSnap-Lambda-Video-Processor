@@ -55,8 +55,7 @@ jobs:
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
-            /d:sonar.sources="Lambda-FrameSnap-Processor" \
-            #/d:sonar.tests="Lambda-FrameSnap-Processor.Tests" \
+            /d:sonar.sources="Lambda-FrameSnap-Processor" \            
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.coverage.exclusions="**/*.Tests.cs" \
             /d:sonar.scm.provider=git \
