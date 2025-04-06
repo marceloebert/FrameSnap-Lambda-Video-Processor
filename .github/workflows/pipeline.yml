@@ -56,7 +56,6 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
             /d:sonar.coverage.exclusions="**Tests*.cs" \
-            /d:sonar.projectBaseDir=Lambda-FrameSnap-Processor \
             /d:sonar.scm.provider=git \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
@@ -64,11 +63,8 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
 
-      - name: Build main project
-        run: dotnet build Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.csproj --configuration Release --no-restore
-
-      - name: Build test project
-        run: dotnet build Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build Lambda-FrameSnap-Processor.sln --configuration Release --no-restore
 
       - name: Run Unit Tests with Coverage
         run: |
@@ -76,11 +72,12 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=../coverage/coverage.opencover.xml \
-            /p:Include="[Lambda-FrameSnap-Processor]*" \
-            --verbosity normal
+            --collect:"XPlat Code Coverage"
+          reportgenerator \
+            -reports:**/coverage.cobertura.xml \
+            -targetdir:coverage \
+            -reporttypes:opencover \
+            -filefilters:+Lambda-FrameSnap-Processor*
 
       - name: End SonarCloud analysis
         env:
