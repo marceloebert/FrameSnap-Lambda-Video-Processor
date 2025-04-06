@@ -45,9 +45,6 @@ jobs:
       - name: Install SonarCloud scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Set branch name for SonarCloud
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -56,12 +53,14 @@ jobs:
             /k:"${{ env.SONAR_PROJECT_KEY }}" \
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
-            /d:sonar.token="${SONAR_TOKEN}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
             /d:sonar.coverage.exclusions="**Tests*.cs" \
             /d:sonar.scm.provider=git \
-            /d:sonar.branch.name="${BRANCH_NAME}" \
-            /d:sonar.exclusions="**/bin/**/*,**/obj/**/*"
+            /d:sonar.sourceEncoding=UTF-8 \
+            /d:sonar.sources=. \
+            /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
+            /d:sonar.branch.name="${{ github.ref_name }}"
 
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
@@ -81,7 +80,7 @@ jobs:
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
