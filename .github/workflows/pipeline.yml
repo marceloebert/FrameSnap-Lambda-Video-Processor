@@ -45,9 +45,6 @@ jobs:
       - name: Install SonarCloud scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
-
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -57,7 +54,7 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
+            /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" \
             /d:sonar.coverage.exclusions="**Tests*.cs" \
             /d:sonar.scm.provider=git \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
@@ -76,11 +73,6 @@ jobs:
             --no-build \
             --configuration Release \
             --collect:"XPlat Code Coverage"
-          ~/.dotnet/tools/reportgenerator \
-            -reports:**/coverage.cobertura.xml \
-            -targetdir:coverage \
-            -reporttypes:opencover \
-            -filefilters:+Lambda-FrameSnap-Processor*
 
       - name: End SonarCloud analysis
         env:
@@ -91,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.opencover.xml
+          path: '**/coverage.cobertura.xml'
 
   build-and-package:
     runs-on: ubuntu-latest
