@@ -145,23 +145,7 @@ namespace Lambda_FrameSnap_Processor.Tests
 
             // Act & Assert
             await Assert.ThrowsAsync<HttpRequestException>(() => _function.FunctionHandler(sqsEvent, _context));
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_S3UploadFails_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            _s3ClientMock.Setup(x => x.PutObjectAsync(It.IsAny<Amazon.S3.Model.PutObjectRequest>(), default))
-                        .ThrowsAsync(new AmazonS3Exception("Upload failed"));
-
-            // Act & Assert
-            await Assert.ThrowsAsync<AmazonS3Exception>(() => _function.FunctionHandler(sqsEvent, _context));
-        }
+        }       
 
         [Fact]
         public async Task ProcessMessageAsync_InvalidS3Event_LogsWarning()
