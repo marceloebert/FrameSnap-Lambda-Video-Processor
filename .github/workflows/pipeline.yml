@@ -95,7 +95,12 @@ jobs:
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
-            /d:sonar.coverage.exclusions="**Tests*.cs"
+            /d:sonar.coverage.exclusions="**Tests*.cs" \
+            /d:sonar.scm.provider=git \
+            /d:sonar.sourceEncoding=UTF-8 \
+            /d:sonar.sources=. \
+            /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
+            /d:sonar.branch.name="${{ github.ref_name }}"
 
       - name: Build solution
         run: |
