@@ -9,6 +9,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <!-- Generate ready to run images during publishing to improve cold start time. -->
     <PublishReadyToRun>true</PublishReadyToRun>
+	<IsTestProject>false</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Lambda-FrameSnap-Processor.Tests\**" />
