@@ -45,6 +45,9 @@ jobs:
       - name: Install SonarCloud scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -73,7 +76,7 @@ jobs:
             --no-build \
             --configuration Release \
             --collect:"XPlat Code Coverage"
-          reportgenerator \
+          ~/.dotnet/tools/reportgenerator \
             -reports:**/coverage.cobertura.xml \
             -targetdir:coverage \
             -reporttypes:opencover \
