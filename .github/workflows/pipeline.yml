@@ -117,7 +117,7 @@ jobs:
       - name: Build and package Lambda
         run: |
           dotnet restore
-          dotnet lambda package --project-location Lambda-FrameSnap-Processor -c Release -o Lambda-FrameSnap-Processor.zip
+          dotnet lambda package -pl . -c Release -o Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
