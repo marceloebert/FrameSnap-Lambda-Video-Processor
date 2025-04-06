@@ -84,7 +84,7 @@ jobs:
           name: coverage-report
           path: '**/coverage.opencover.xml'
 
-  build-and-package:
+   build-and-package:
     runs-on: ubuntu-latest
     needs: build-and-analyze
     environment:
@@ -103,10 +103,16 @@ jobs:
           dotnet tool install -g Amazon.Lambda.Tools
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
+      - name: Restore project
+        working-directory: Lambda-FrameSnap-Processor
+        run: dotnet restore
+
       - name: Build and package Lambda
+        working-directory: Lambda-FrameSnap-Processor
         run: |
-          dotnet restore
-          dotnet lambda package -pl Lambda-FrameSnap-Processor.csproj -c Release -o Lambda-FrameSnap-Processor.zip
+          dotnet lambda package \
+            --configuration Release \
+            --output-package ../Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
