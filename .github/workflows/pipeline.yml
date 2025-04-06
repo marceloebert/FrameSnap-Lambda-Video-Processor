@@ -54,13 +54,12 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.cobertura.reportsPaths="**/coverage.cobertura.xml" \
-            /d:sonar.coverage.exclusions="**Tests*.cs" \
-            /d:sonar.inclusions="**/Lambda-FrameSnap-Processor/**/*.cs" \
-            /d:sonar.test.inclusions="**/Lambda-FrameSnap-Processor.Tests/**/*.cs" \
-            /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/**/coverage.cobertura.xml" \
-            /d:sonar.scm.provider=git \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+            /d:sonar.sources="Lambda-FrameSnap-Processor" \
+            /d:sonar.tests="Lambda-FrameSnap-Processor.Tests" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
+            /d:sonar.coverage.exclusions="**/*.Tests.cs" \
+            /d:sonar.scm.provider=git \
             /d:sonar.branch.name="main"
 
       - name: Restore dependencies
@@ -75,7 +74,8 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage"
+            --collect:"XPlat Code Coverage" \
+            -p:CoverletOutputFormat=opencover
 
       - name: End SonarCloud analysis
         env:
@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: '**/coverage.cobertura.xml'
+          path: '**/coverage.opencover.xml'
 
   build-and-package:
     runs-on: ubuntu-latest
