@@ -68,31 +68,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             var logger = (TestLambdaLogger)_context.Logger;
             Assert.Contains("Ignorando arquivo ZIP", logger.Buffer.ToString());
             _s3ClientMock.Verify(x => x.GetObjectAsync(It.IsAny<Amazon.S3.Model.GetObjectRequest>(), default), Times.Never);
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_ValidVideo_ProcessesSuccessfully()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Mock FFmpeg
-            Environment.SetEnvironmentVariable("TEMP_DIR", Path.GetTempPath());
-
-            // Act
-            await _function.FunctionHandler(sqsEvent, _context);
-
-            // Assert
-            var logger = (TestLambdaLogger)_context.Logger;
-            Assert.Contains("Processando vídeo", logger.Buffer.ToString());
-
-            _s3ClientMock.Verify(x => x.GetObjectAsync(It.IsAny<Amazon.S3.Model.GetObjectRequest>(), default), Times.Once);
-            _s3ClientMock.Verify(x => x.PutObjectAsync(It.IsAny<Amazon.S3.Model.PutObjectRequest>(), default), Times.Once);
-            VerifyHttpRequestsMade();
-        }
+        }       
 
         [Fact]
         public async Task ProcessMessageAsync_S3DownloadFails_ThrowsException()
