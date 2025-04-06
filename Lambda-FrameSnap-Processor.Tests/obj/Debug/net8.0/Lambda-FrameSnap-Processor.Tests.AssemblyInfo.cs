@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Lambda-FrameSnap-Processor.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f069303e267336fdb9d1a4e622f46d37b6e88b42")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+20b1b8300f7dfaef72b71a4dce5ea62121dd65b3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Lambda-FrameSnap-Processor.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Lambda-FrameSnap-Processor.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
