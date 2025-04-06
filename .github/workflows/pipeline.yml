@@ -71,11 +71,10 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-          mkdir -p coverage
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=../coverage/coverage.opencover.xml \
+            /p:CoverletOutput=coverage/coverage.opencover.xml \
             /p:Include="[Lambda-FrameSnap-Processor]*" \
             --verbosity normal
 
@@ -112,7 +111,7 @@ jobs:
       - name: Build and package Lambda
         run: |
           dotnet restore
-          dotnet lambda package -pl Lambda-FrameSnap-Processor.csproj -c Release -o Lambda-FrameSnap-Processor.zip
+          dotnet lambda package -pl . -c Release -o Lambda-FrameSnap-Processor.zip
 
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
