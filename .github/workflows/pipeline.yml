@@ -58,8 +58,8 @@ jobs:
             /d:sonar.coverage.exclusions="**Tests*.cs" \
             /d:sonar.scm.provider=git \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
-            /d:sonar.projectBaseDir="." \
             /d:sonar.branch.name="main"
+
 
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
