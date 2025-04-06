@@ -45,6 +45,9 @@ jobs:
       - name: Install SonarCloud scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
+      - name: Set branch name for SonarCloud
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
       - name: Begin SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -60,7 +63,7 @@ jobs:
             /d:sonar.sourceEncoding=UTF-8 \
             /d:sonar.sources=. \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
-            /d:sonar.branch.name="${{ github.ref_name }}"
+            /d:sonar.branch.name="${BRANCH_NAME}"
 
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
