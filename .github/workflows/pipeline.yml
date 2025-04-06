@@ -58,7 +58,7 @@ jobs:
             /d:sonar.coverage.exclusions="**Tests*.cs" \
             /d:sonar.inclusions="**/Lambda-FrameSnap-Processor/**/*.cs" \
             /d:sonar.test.inclusions="**/Lambda-FrameSnap-Processor.Tests/**/*.cs" \
-            /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/**/coverage.cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="Lambda-FrameSnap-Processor.Tests/**/coverage.cobertura.xml" \
             /d:sonar.scm.provider=git \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
