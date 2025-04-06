@@ -60,7 +60,7 @@ jobs:
             /d:sonar.sourceEncoding=UTF-8 \
             /d:sonar.sources=. \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
-            /d:sonar.branch.name="${{ github.ref_name }}"
+            /d:sonar.branch.name="main"
 
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
