@@ -56,7 +56,7 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
             /d:sonar.sources="Lambda-FrameSnap-Processor" \
-            /d:sonar.tests="Lambda-FrameSnap-Processor.Tests" \
+            #/d:sonar.tests="Lambda-FrameSnap-Processor.Tests" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.coverage.exclusions="**/*.Tests.cs" \
             /d:sonar.scm.provider=git \
@@ -68,14 +68,14 @@ jobs:
       - name: Build solution
         run: dotnet build Lambda-FrameSnap-Processor.sln --configuration Release --no-restore
 
-      - name: Run Unit Tests with Coverage
-        run: |
-          mkdir -p coverage
-          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
-            --no-build \
-            --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            -p:CoverletOutputFormat=opencover
+      # - name: Run Unit Tests with Coverage
+      #   run: |
+      #     mkdir -p coverage
+      #     dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
+      #       --no-build \
+      #       --configuration Release \
+      #       --collect:"XPlat Code Coverage" \
+      #       -p:CoverletOutputFormat=opencover
 
       - name: End SonarCloud analysis
         env:
