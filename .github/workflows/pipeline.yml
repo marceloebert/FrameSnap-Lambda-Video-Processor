@@ -64,14 +64,14 @@ jobs:
       - name: Build solution
         run: dotnet build Lambda-FrameSnap-Processor.sln --configuration Release --no-restore
 
-      # - name: Run Unit Tests with Coverage
-      #   run: |
-      #     mkdir -p coverage
-      #     dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
-      #       --no-build \
-      #       --configuration Release \
-      #       --collect:"XPlat Code Coverage" \
-      #       -p:CoverletOutputFormat=opencover
+      - name: Run Unit Tests with Coverage
+        run: |
+          mkdir -p coverage
+          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
+            --no-build \
+            --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            -p:CoverletOutputFormat=opencover
 
       - name: End SonarCloud analysis
         env:
