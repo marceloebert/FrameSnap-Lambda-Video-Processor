@@ -47,17 +47,16 @@ jobs:
 
       - name: Begin SonarCloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner begin \
+         dotnet sonarscanner begin \
             /k:"${{ env.SONAR_PROJECT_KEY }}" \
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
-            /d:sonar.sources="Lambda-FrameSnap-Processor" \            
+            /d:sonar.sources="Lambda-FrameSnap-Processor" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
-            /d:sonar.coverage.exclusions="**/*.Tests.cs" \
             /d:sonar.scm.provider=git \
             /d:sonar.branch.name="main"
 
