@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda-FrameSnap-Processor.Tests", "Lambda-FrameSnap-Processor.Tests\Lambda-FrameSnap-Processor.Tests.csproj", "{5A494F16-2202-A074-4E0B-A090D2F154E2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lambda-FrameSnap-Processor", "Lambda-FrameSnap-Processor\Lambda-FrameSnap-Processor.csproj", "{77EA3684-401B-2C73-7671-679995B1365B}"
 EndProject
 Global
@@ -17,18 +15,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|x64.Build.0 = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Debug|x86.Build.0 = Debug|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|x64.ActiveCfg = Release|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|x64.Build.0 = Release|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|x86.ActiveCfg = Release|Any CPU
-		{5A494F16-2202-A074-4E0B-A090D2F154E2}.Release|x86.Build.0 = Release|Any CPU
 		{77EA3684-401B-2C73-7671-679995B1365B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77EA3684-401B-2C73-7671-679995B1365B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77EA3684-401B-2C73-7671-679995B1365B}.Debug|x64.ActiveCfg = Debug|Any CPU
