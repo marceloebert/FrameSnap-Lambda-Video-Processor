@@ -5680,8 +5680,8 @@
     },
     "Lambda-FrameSnap-Processor/1.0.0": {
       "type": "project",
-      "path": "../Lambda-FrameSnap-Processor.csproj",
-      "msbuildProject": "../Lambda-FrameSnap-Processor.csproj"
+      "path": "../Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.csproj",
+      "msbuildProject": "../Lambda-FrameSnap-Processor/Lambda-FrameSnap-Processor.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -5731,8 +5731,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Marcelo\\OneDrive\\Documentos\\Pós Graduação FIAP\\FIAP-SOAT\\Hackaton\\FrameSnap\\Lambda-Framesnap-Video-Processor\\Lambda-FrameSnap-Processor.csproj": {
-              "projectPath": "C:\\Users\\Marcelo\\OneDrive\\Documentos\\Pós Graduação FIAP\\FIAP-SOAT\\Hackaton\\FrameSnap\\Lambda-Framesnap-Video-Processor\\Lambda-FrameSnap-Processor.csproj"
+            "C:\\Users\\Marcelo\\OneDrive\\Documentos\\Pós Graduação FIAP\\FIAP-SOAT\\Hackaton\\FrameSnap\\Lambda-Framesnap-Video-Processor\\Lambda-FrameSnap-Processor\\Lambda-FrameSnap-Processor.csproj": {
+              "projectPath": "C:\\Users\\Marcelo\\OneDrive\\Documentos\\Pós Graduação FIAP\\FIAP-SOAT\\Hackaton\\FrameSnap\\Lambda-Framesnap-Video-Processor\\Lambda-FrameSnap-Processor\\Lambda-FrameSnap-Processor.csproj"
             }
           }
         }

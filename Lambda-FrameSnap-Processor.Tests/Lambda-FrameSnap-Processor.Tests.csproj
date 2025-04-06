@@ -29,16 +29,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Lambda-FrameSnap-Processor\Lambda-FrameSnap-Processor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="Moq" />
     <Using Include="Amazon.Lambda.Core" />
     <Using Include="Amazon.Lambda.SQSEvents" />
     <Using Include="Amazon.Lambda.TestUtilities" />
     <Using Include="Amazon.S3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Lambda-FrameSnap-Processor.csproj" />
   </ItemGroup>
 
 </Project>
