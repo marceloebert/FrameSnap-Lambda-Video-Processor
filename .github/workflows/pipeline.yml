@@ -16,6 +16,8 @@ env:
 jobs:
   build-and-analyze:
     runs-on: ubuntu-latest
+    environment:
+      name: SONAR
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
