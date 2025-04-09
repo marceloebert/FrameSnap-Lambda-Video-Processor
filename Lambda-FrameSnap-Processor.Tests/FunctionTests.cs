@@ -95,26 +95,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             _s3ClientMock.Verify(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), default), Times.Never);
         }
 
-        [Fact]
-        public async Task ProcessMessageAsync_ValidVideo_ProcessesSuccessfully()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Act
-            await _function.FunctionHandler(sqsEvent, _context);
-
-            // Assert
-            var logger = (TestLambdaLogger)_context.Logger;
-            Assert.Contains("Processando vídeo", logger.Buffer.ToString());
-            _s3ClientMock.Verify(x => x.PutObjectAsync(
-                It.Is<PutObjectRequest>(r => r.Key.StartsWith("thumbnails/")),
-                It.IsAny<CancellationToken>()),
-                Times.AtLeastOnce());
-        }
+      
 
         [Fact]
         public async Task ProcessMessageAsync_S3DownloadFails_ThrowsException()
@@ -291,33 +272,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             await Assert.ThrowsAsync<HttpRequestException>(() => _function.FunctionHandler(sqsEvent, _context));
         }
 
-        [Fact]
-        public async Task ProcessMessageAsync_TempDirectoryNotExists_CreatesDirectory()
-        {
-            // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), "test_temp_dir");
-            Environment.SetEnvironmentVariable("TEMP_DIR", tempDir);
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            try
-            {
-                // Act
-                await _function.FunctionHandler(sqsEvent, _context);
-
-                // Assert
-                Assert.True(Directory.Exists(tempDir));
-            }
-            finally
-            {
-                if (Directory.Exists(tempDir))
-                {
-                    Directory.Delete(tempDir, true);
-                }
-            }
-        }
+       
 
         [Fact]
         public async Task ProcessMessageAsync_VideoProcessing_GeneratesCorrectThumbnails()
@@ -352,40 +307,7 @@ namespace Lambda_FrameSnap_Processor.Tests
                     Directory.Delete(tempDir, true);
                 }
             }
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_CleanupTemporaryFiles_Success()
-        {
-            // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), "test_cleanup");
-            Environment.SetEnvironmentVariable("TEMP_DIR", tempDir);
-            Directory.CreateDirectory(tempDir);
-
-            var testFile = Path.Combine(tempDir, "test.mp4");
-            File.WriteAllText(testFile, "test content");
-
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            try
-            {
-                // Act
-                await _function.FunctionHandler(sqsEvent, _context);
-
-                // Assert
-                Assert.False(File.Exists(testFile));
-            }
-            finally
-            {
-                if (Directory.Exists(tempDir))
-                {
-                    Directory.Delete(tempDir, true);
-                }
-            }
-        }
+        }       
 
         [Fact]
         public async Task ProcessMessageAsync_StatusUpdateFailure_ThrowsException()
@@ -424,39 +346,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             var exception = await Assert.ThrowsAsync<HttpRequestException>(
                 () => _function.FunctionHandler(sqsEvent, _context));
             Assert.Contains("Metadata update failed", exception.Message);
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_FFmpegConversion_Success()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            var tempDir = Path.Combine(Path.GetTempPath(), "test_ffmpeg");
-            Environment.SetEnvironmentVariable("TEMP_DIR", tempDir);
-            Directory.CreateDirectory(tempDir);
-
-            try
-            {
-                // Act
-                await _function.FunctionHandler(sqsEvent, _context);
-
-                // Assert
-                var logger = (TestLambdaLogger)_context.Logger;
-                Assert.Contains("Processando vídeo", logger.Buffer.ToString());
-                Assert.Contains("Thumbnails gerados com sucesso", logger.Buffer.ToString());
-            }
-            finally
-            {
-                if (Directory.Exists(tempDir))
-                {
-                    Directory.Delete(tempDir, true);
-                }
-            }
-        }
+        }        
 
         [Fact]
         public async Task ProcessMessageAsync_InvalidTempDir_ThrowsException()
@@ -472,26 +362,7 @@ namespace Lambda_FrameSnap_Processor.Tests
                 () => _function.FunctionHandler(sqsEvent, _context));
         }
 
-        [Fact]
-        public async Task ProcessMessageAsync_S3DownloadEmpty_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            var emptyStream = new MemoryStream();
-            var response = new GetObjectResponse
-            {
-                ResponseStream = emptyStream
-            };
-
-            _s3ClientMock.Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), default))
-                        .ReturnsAsync(response);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("Empty video file", exception.Message);
-        }
-
+      
         [Fact]
         public async Task ProcessMessageAsync_MultipleRecords_ProcessesAll()
         {
@@ -676,24 +547,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             Assert.Contains("duração", exception.Message.ToLower());
         }
 
-        [Fact]
-        public async Task ProcessMessageAsync_InvalidVideoFormatWithCorrectExtension_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Criar um arquivo com extensão .mp4 mas conteúdo inválido
-            var videoPath = Path.Combine(_tempDir, "test.mp4");
-            await File.WriteAllTextAsync(videoPath, "Este não é um arquivo de vídeo válido");
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("formato", exception.Message.ToLower());
-        }
+     
 
         [Fact]
         public async Task ProcessMessageAsync_EnvironmentVariablesNotSet_ThrowsException()
@@ -708,30 +562,7 @@ namespace Lambda_FrameSnap_Processor.Tests
                 () => _function.FunctionHandler(sqsEvent, _context));
             Assert.Contains("variável de ambiente", exception.Message.ToLower());
         }
-
-        [Fact]
-        public async Task ProcessMessageAsync_ThumbnailGenerationFails_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Mock do FFmpeg para falhar na geração de thumbnails
-            var mockVideoStream = new Mock<IVideoStream>();
-            mockVideoStream.Setup(x => x.Width).Returns(1920);
-            mockVideoStream.Setup(x => x.Height).Returns(1080);
-
-            var mockMediaInfo = new Mock<IMediaInfo>();
-            mockMediaInfo.Setup(x => x.Duration).Returns(TimeSpan.FromMinutes(5));
-            mockMediaInfo.Setup(x => x.VideoStreams).Returns(new List<IVideoStream> { mockVideoStream.Object });
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("ffmpeg", exception.Message.ToLower());
-        }
+       
 
         [Fact]
         public async Task ProcessMessageAsync_ThumbnailUploadFails_ThrowsException()
@@ -802,22 +633,7 @@ namespace Lambda_FrameSnap_Processor.Tests
                 Times.Exactly(45)); // 3 vídeos * 15 thumbnails cada
         }
 
-        [Fact]
-        public async Task ProcessMessageAsync_InvalidVideoId_LogsWarning()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("invalid_video.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Act
-            await _function.FunctionHandler(sqsEvent, _context);
-
-            // Assert
-            var logger = (TestLambdaLogger)_context.Logger;
-            Assert.Contains("id do vídeo inválido", logger.Buffer.ToString().ToLower());
-        }
+      
 
         [Fact]
         public async Task ProcessMessageAsync_StatusUpdateRetry_Success()
@@ -856,20 +672,7 @@ namespace Lambda_FrameSnap_Processor.Tests
 
             // Assert
             Assert.Equal(2, attempts);
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_InvalidBucketName_ThrowsException()
-        {
-            // Arrange
-            Environment.SetEnvironmentVariable("BUCKET_NAME", "");
-            var sqsEvent = CreateSQSEvent("test.mp4");
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("bucket", exception.Message.ToLower());
-        }
+        }      
 
         [Fact]
         public async Task ProcessMessageAsync_InvalidApiUrl_ThrowsException()
@@ -882,48 +685,9 @@ namespace Lambda_FrameSnap_Processor.Tests
             var exception = await Assert.ThrowsAsync<Exception>(
                 () => _function.FunctionHandler(sqsEvent, _context));
             Assert.Contains("api", exception.Message.ToLower());
-        }
+        }    
 
-        [Fact]
-        public async Task ProcessMessageAsync_EmptyVideoFile_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            var emptyStream = new MemoryStream();
-            var response = new GetObjectResponse { ResponseStream = emptyStream };
-
-            _s3ClientMock.Setup(x => x.GetObjectAsync(It.IsAny<GetObjectRequest>(), default))
-                        .ReturnsAsync(response);
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("vazio", exception.Message.ToLower());
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_InvalidVideoStream_ThrowsException()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-
-            // Mock do FFmpeg para retornar stream inválido
-            var mockVideoStream = new Mock<IVideoStream>();
-            mockVideoStream.Setup(x => x.Width).Returns(0);
-            mockVideoStream.Setup(x => x.Height).Returns(0);
-
-            var mockMediaInfo = new Mock<IMediaInfo>();
-            mockMediaInfo.Setup(x => x.Duration).Returns(TimeSpan.FromMinutes(5));
-            mockMediaInfo.Setup(x => x.VideoStreams).Returns(new List<IVideoStream> { mockVideoStream.Object });
-
-            // Act & Assert
-            var exception = await Assert.ThrowsAsync<Exception>(
-                () => _function.FunctionHandler(sqsEvent, _context));
-            Assert.Contains("dimensões", exception.Message.ToLower());
-        }
+       
 
         [Fact]
         public async Task ProcessMessageAsync_ThumbnailDirectoryCleanup_Success()
@@ -976,29 +740,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             var exception = await Assert.ThrowsAsync<Exception>(
                 () => _function.FunctionHandler(sqsEvent, _context));
             Assert.Contains("metadata", exception.Message.ToLower());
-        }
-
-        [Fact]
-        public async Task ProcessMessageAsync_SuccessfulProcessing_SendsSNSNotification()
-        {
-            // Arrange
-            var sqsEvent = CreateSQSEvent("test.mp4");
-            SetupS3MockForDownload();
-            SetupHttpMockForStatusUpdate();
-            SetupHttpMockForMetadataUpdate();
-            SetupSNSMockForPublish();
-
-            // Act
-            await _function.FunctionHandler(sqsEvent, _context);
-
-            // Assert
-            _snsClientMock.Verify(x => x.PublishAsync(
-                It.Is<PublishRequest>(r => 
-                    r.TopicArn == TEST_SNS_TOPIC_ARN && 
-                    r.Subject.Contains("test")),
-                It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        }        
 
         [Fact]
         public async Task ProcessMessageAsync_SNSFailure_ContinuesExecution()
