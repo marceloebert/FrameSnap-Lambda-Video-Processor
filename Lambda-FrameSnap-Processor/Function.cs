@@ -2,6 +2,8 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.IO.Compression;
@@ -14,24 +16,50 @@ using System.Text;
 
 namespace Lambda_FrameSnap_Processor;
 
+public interface IVideoProcessor
+{
+    Task<IMediaInfo> GetMediaInfo(string filePath);
+    Task GenerateThumbnail(string inputPath, string outputPath, TimeSpan timestamp);
+}
+
+public class FFmpegVideoProcessor : IVideoProcessor
+{
+    public async Task<IMediaInfo> GetMediaInfo(string filePath)
+    {
+        return await FFmpeg.GetMediaInfo(filePath);
+    }
+
+    public async Task GenerateThumbnail(string inputPath, string outputPath, TimeSpan timestamp)
+    {
+        await FFmpeg.Conversions.New()
+            .AddParameter($"-i \"{inputPath}\" -ss {timestamp.TotalSeconds} -vframes 1 -f image2 \"{outputPath}\"")
+            .Start();
+    }
+}
+
 public class Function
 {
     private readonly IAmazonS3 _s3Client;
     private readonly HttpClient _httpClient;
+    private readonly IVideoProcessor _videoProcessor;
+    private readonly IAmazonSimpleNotificationService _snsClient;
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
     private readonly string TEMP_DIR;
+    private readonly string SNS_TOPIC_ARN;
+    private readonly bool _isTestEnvironment;
 
     // Construtor padrão para produção
     public Function()
-        : this(new AmazonS3Client(), new HttpClient()) { }
+        : this(new AmazonS3Client(), new HttpClient(), new FFmpegVideoProcessor(), new AmazonSimpleNotificationServiceClient(), false) { }
 
     // Construtor com injeção de dependência para testes
-    public Function(IAmazonS3 s3Client, HttpClient httpClient)
+    public Function(IAmazonS3 s3Client, HttpClient httpClient, IVideoProcessor videoProcessor, IAmazonSimpleNotificationService snsClient, bool isTestEnvironment = true)
     {
-        BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME");
-        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL");
+        BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
+        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a17402d9af26045b99d867bf497802ea-531317326.us-east-1.elb.amazonaws.com";
         TEMP_DIR = Environment.GetEnvironmentVariable("TEMP_DIR") ?? Path.GetTempPath();
+        SNS_TOPIC_ARN = Environment.GetEnvironmentVariable("SNS_TOPIC_ARN") ?? "arn:aws:sns:us-east-1:114692541707:FrameSnap-Notifications";
 
         if (string.IsNullOrEmpty(BUCKET_NAME))
             throw new Exception("BUCKET_NAME não configurado");
@@ -39,8 +67,14 @@ public class Function
         if (string.IsNullOrEmpty(API_BASE_URL))
             throw new Exception("API_BASE_URL não configurado");
 
+        if (string.IsNullOrEmpty(SNS_TOPIC_ARN))
+            throw new Exception("SNS_TOPIC_ARN não configurado");
+
         _s3Client = s3Client;
         _httpClient = httpClient;
+        _videoProcessor = videoProcessor;
+        _snsClient = snsClient;
+        _isTestEnvironment = isTestEnvironment;
 
         // Garantir que o diretório temporário existe
         if (!Directory.Exists(TEMP_DIR))
@@ -61,9 +95,12 @@ public class Function
 
         try
         {
-            context.Logger.LogInformation("Baixando FFmpeg...");
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
-            context.Logger.LogInformation("FFmpeg baixado com sucesso!");
+            if (!_isTestEnvironment)
+            {
+                context.Logger.LogInformation("Baixando FFmpeg...");
+                await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
+                context.Logger.LogInformation("FFmpeg baixado com sucesso!");
+            }
 
             foreach (var message in evnt.Records)
             {
@@ -101,6 +138,12 @@ public class Function
                 return;
             }
 
+            if (!IsValidVideoFormat(videoKey))
+            {
+                context.Logger.LogWarning($"Formato de vídeo não suportado: {videoKey}");
+                return;
+            }
+
             var videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
             if (string.IsNullOrEmpty(videoId))
             {
@@ -130,7 +173,7 @@ public class Function
                 throw new IOException($"Não foi possível criar o diretório de saída: {ex.Message}");
             }
 
-            var mediaInfo = await FFmpeg.GetMediaInfo(localVideoPath);
+            var mediaInfo = await _videoProcessor.GetMediaInfo(localVideoPath);
             if (mediaInfo == null || mediaInfo.Duration <= TimeSpan.Zero)
             {
                 throw new Exception("Metadata do vídeo inválida ou duração zero");
@@ -151,9 +194,7 @@ public class Function
                 var timestamp = i * interval;
                 var outputPath = Path.Combine(outputFolder, $"thumbnail_{i}.jpg");
 
-                await FFmpeg.Conversions.New()
-                    .AddParameter($"-i \"{localVideoPath}\" -ss {timestamp.TotalSeconds} -vframes 1 -f image2 \"{outputPath}\"")
-                    .Start();
+                await _videoProcessor.GenerateThumbnail(localVideoPath, outputPath, timestamp);
 
                 var thumbnailKey = $"thumbnails/{videoId}/thumbnail_{i}.jpg";
                 await UploadThumbnailToS3(outputPath, thumbnailKey);
@@ -161,6 +202,9 @@ public class Function
 
             await UpdateRedisStatus(videoId, "COMPLETED", context);
             await UpdateDynamoMetadata(videoId, thumbnailCount, "COMPLETED", context);
+            
+            // Enviar notificação SNS após a conclusão do processamento
+            await SendNotificationAsync(videoId, "COMPLETED", thumbnailCount, context);
         }
         catch (Exception ex)
         {
@@ -194,6 +238,12 @@ public class Function
                 }
             }
         }
+    }
+
+    private bool IsValidVideoFormat(string fileName)
+    {
+        var validExtensions = new[] { ".mp4", ".avi", ".mov", ".mkv" };
+        return validExtensions.Contains(Path.GetExtension(fileName).ToLower());
     }
 
     private async Task DownloadVideoFromS3(string key, string localPath)
@@ -287,6 +337,36 @@ public class Function
         {
             context.Logger.LogError($"Erro ao atualizar metadados no DynamoDB: {ex.Message}");
             throw;
+        }
+    }
+
+    private async Task SendNotificationAsync(string videoId, string status, int thumbnailCount, ILambdaContext context)
+    {
+        try
+        {
+            var message = new
+            {
+                videoId,
+                status,
+                thumbnailCount,
+                timestamp = DateTime.UtcNow,
+                message = $"Processamento do vídeo {videoId} foi concluído com status {status}. Foram gerados {thumbnailCount} thumbnails."
+            };
+
+            var request = new PublishRequest
+            {
+                TopicArn = SNS_TOPIC_ARN,
+                Message = JsonConvert.SerializeObject(message),
+                Subject = $"Processamento de Vídeo Concluído - {videoId}"
+            };
+
+            await _snsClient.PublishAsync(request);
+            context.Logger.LogInformation($"Notificação SNS enviada para o vídeo {videoId}");
+        }
+        catch (Exception ex)
+        {
+            context.Logger.LogError($"Erro ao enviar notificação SNS: {ex.Message}");
+            // Não vamos lançar a exceção aqui para não interromper o fluxo principal
         }
     }
 }
