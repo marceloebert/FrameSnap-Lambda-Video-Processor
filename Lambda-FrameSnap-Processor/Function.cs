@@ -116,8 +116,10 @@ public class Function
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
-        string? localVideoPath = null;
-        string? outputFolder = null;
+        string videoId = null;
+        int thumbnailCount = 0;
+        string tempVideoPath = null;
+        string tempDir = null;
 
         try
         {
@@ -144,7 +146,7 @@ public class Function
                 return;
             }
 
-            var videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
+            videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
             if (string.IsNullOrEmpty(videoId))
             {
                 context.Logger.LogWarning("ID do vídeo inválido");
@@ -156,24 +158,24 @@ public class Function
             await UpdateRedisStatus(videoId, "PROCESSING", context);
             await UpdateDynamoMetadata(videoId, null, "PROCESSING", context);
 
-            localVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
-            await DownloadVideoFromS3(videoKey, localVideoPath);
+            tempVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
+            await DownloadVideoFromS3(videoKey, tempVideoPath);
 
-            outputFolder = Path.Combine(TEMP_DIR, "images");
+            tempDir = Path.Combine(TEMP_DIR, "images");
             try
             {
-                if (Directory.Exists(outputFolder))
+                if (Directory.Exists(tempDir))
                 {
-                    Directory.Delete(outputFolder, true);
+                    Directory.Delete(tempDir, true);
                 }
-                Directory.CreateDirectory(outputFolder);
+                Directory.CreateDirectory(tempDir);
             }
             catch (IOException ex)
             {
                 throw new IOException($"Não foi possível criar o diretório de saída: {ex.Message}");
             }
 
-            var mediaInfo = await _videoProcessor.GetMediaInfo(localVideoPath);
+            var mediaInfo = await _videoProcessor.GetMediaInfo(tempVideoPath);
             if (mediaInfo == null || mediaInfo.Duration <= TimeSpan.Zero)
             {
                 throw new Exception("Metadata do vídeo inválida ou duração zero");
@@ -187,14 +189,14 @@ public class Function
 
             var duration = mediaInfo.Duration;
             var interval = TimeSpan.FromSeconds(20);
-            var thumbnailCount = (int)(duration.TotalSeconds / interval.TotalSeconds);
+            thumbnailCount = (int)(duration.TotalSeconds / interval.TotalSeconds);
 
             for (int i = 0; i < thumbnailCount; i++)
             {
                 var timestamp = i * interval;
-                var outputPath = Path.Combine(outputFolder, $"thumbnail_{i}.jpg");
+                var outputPath = Path.Combine(tempDir, $"thumbnail_{i}.jpg");
 
-                await _videoProcessor.GenerateThumbnail(localVideoPath, outputPath, timestamp);
+                await _videoProcessor.GenerateThumbnail(tempVideoPath, outputPath, timestamp);
 
                 var thumbnailKey = $"thumbnails/{videoId}/thumbnail_{i}.jpg";
                 await UploadThumbnailToS3(outputPath, thumbnailKey);
@@ -209,16 +211,29 @@ public class Function
         catch (Exception ex)
         {
             context.Logger.LogError($"Erro ao processar mensagem: {ex.Message}");
+            if (videoId != null)
+            {
+                try
+                {
+                    await UpdateRedisStatus(videoId, "ERROR", context);
+                    await UpdateDynamoMetadata(videoId, thumbnailCount, "ERROR", context);
+                    await SendNotificationAsync(videoId, "ERROR", thumbnailCount, context);
+                }
+                catch (Exception updateEx)
+                {
+                    context.Logger.LogError($"Erro ao atualizar status de erro: {updateEx.Message}");
+                }
+            }
             throw;
         }
         finally
         {
             // Limpeza
-            if (outputFolder != null && Directory.Exists(outputFolder))
+            if (tempDir != null && Directory.Exists(tempDir))
             {
                 try
                 {
-                    Directory.Delete(outputFolder, true);
+                    Directory.Delete(tempDir, true);
                 }
                 catch (Exception ex)
                 {
@@ -226,11 +241,11 @@ public class Function
                 }
             }
 
-            if (localVideoPath != null && File.Exists(localVideoPath))
+            if (tempVideoPath != null && File.Exists(tempVideoPath))
             {
                 try
                 {
-                    File.Delete(localVideoPath);
+                    File.Delete(tempVideoPath);
                 }
                 catch (Exception ex)
                 {
@@ -278,14 +293,16 @@ public class Function
 
     private async Task UpdateRedisStatus(string videoId, string status, ILambdaContext context)
     {
-        var maxRetries = 3;
-        var retryCount = 0;
-        var success = false;
+        const int maxRetries = 3;
+        int retryCount = 0;
+        bool success = false;
 
-        while (retryCount < maxRetries && !success)
+        while (!success && retryCount < maxRetries)
         {
             try
             {
+                context.Logger.LogInformation($"Tentativa {retryCount + 1} de atualizar status no Redis para o vídeo {videoId}");
+                
                 var response = await _httpClient.PostAsync(
                     $"{API_BASE_URL}/status",
                     new StringContent(JsonConvert.SerializeObject(new { videoId, status }), Encoding.UTF8, "application/json"));
@@ -293,30 +310,41 @@ public class Function
                 if (response.IsSuccessStatusCode)
                 {
                     success = true;
+                    context.Logger.LogInformation($"Status atualizado com sucesso para o vídeo {videoId}");
                 }
                 else
                 {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    context.Logger.LogError($"Erro ao atualizar status. Status code: {response.StatusCode}, Conteúdo: {errorContent}");
                     retryCount++;
                     if (retryCount < maxRetries)
                     {
-                        await Task.Delay(1000 * retryCount); // Backoff exponencial
+                        var delay = 1000 * (int)Math.Pow(2, retryCount); // Backoff exponencial
+                        context.Logger.LogInformation($"Aguardando {delay}ms antes da próxima tentativa");
+                        await Task.Delay(delay);
                     }
                 }
             }
             catch (Exception ex)
             {
                 context.Logger.LogError($"Erro ao atualizar status no Redis: {ex.Message}");
+                context.Logger.LogError($"Stack trace: {ex.StackTrace}");
                 retryCount++;
                 if (retryCount < maxRetries)
                 {
-                    await Task.Delay(1000 * retryCount);
+                    var delay = 1000 * (int)Math.Pow(2, retryCount);
+                    context.Logger.LogInformation($"Aguardando {delay}ms antes da próxima tentativa");
+                    await Task.Delay(delay);
                 }
             }
         }
 
         if (!success)
         {
-            throw new HttpRequestException("Status update failed after multiple retries");
+            context.Logger.LogError($"Falha ao atualizar status após {maxRetries} tentativas para o vídeo {videoId}");
+            // Em vez de lançar exceção, vamos apenas logar o erro e continuar
+            // Isso evita que o processamento do vídeo seja interrompido por problemas de comunicação com o Redis
+            return;
         }
     }
 
