@@ -57,7 +57,7 @@ public class Function
     public Function(IAmazonS3 s3Client, HttpClient httpClient, IVideoProcessor videoProcessor, IAmazonSimpleNotificationService snsClient, bool isTestEnvironment = true)
     {
         BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
-        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a17402d9af26045b99d867bf497802ea-531317326.us-east-1.elb.amazonaws.com";
+        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a7ab35083428b4f2389d506576ae8224-1198331366.us-east-1.elb.amazonaws.com";
         TEMP_DIR = Environment.GetEnvironmentVariable("TEMP_DIR") ?? Path.GetTempPath();
         SNS_TOPIC_ARN = Environment.GetEnvironmentVariable("SNS_TOPIC_ARN") ?? "arn:aws:sns:us-east-1:114692541707:FrameSnap-Notifications";
 
