@@ -20,6 +20,8 @@ public class Function
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
     private const string TEMP_DIR = "/tmp";
+    private const string FFMPEG_PATH = "/opt/ffmpeg/ffmpeg";
+    private const string FFPROBE_PATH = "/opt/ffmpeg/ffprobe";
 
     // Construtor padrão para produção
     public Function()
@@ -34,29 +36,57 @@ public class Function
         _s3Client = s3Client;
         _httpClient = httpClient;
 
-        FFmpeg.SetExecutablesPath(TEMP_DIR);
+        // Configurar caminhos do FFmpeg
+        FFmpeg.SetExecutablesPath("/opt/ffmpeg");
     }
 
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
     {
         if (!evnt.Records.Any())
         {
-            context.Logger.LogInformation("Nenhum registro SQS recebido.");
+            context.Logger.LogWarning("Nenhuma mensagem para processar.");
             return;
         }
 
-        context.Logger.LogInformation("Baixando FFmpeg...");
-        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, TEMP_DIR);
-        context.Logger.LogInformation("FFmpeg baixado com sucesso!");
-
-        foreach (var message in evnt.Records)
+        try
         {
-            await ProcessMessageAsync(message, context);
+            // Verificar se o FFmpeg está disponível
+            context.Logger.LogInformation($"Verificando FFmpeg em {FFMPEG_PATH}");
+            if (!File.Exists(FFMPEG_PATH))
+            {
+                context.Logger.LogError($"FFmpeg não encontrado em {FFMPEG_PATH}");
+                throw new Exception($"FFmpeg não encontrado em {FFMPEG_PATH}");
+            }
+
+            context.Logger.LogInformation($"Verificando FFprobe em {FFPROBE_PATH}");
+            if (!File.Exists(FFPROBE_PATH))
+            {
+                context.Logger.LogError($"FFprobe não encontrado em {FFPROBE_PATH}");
+                throw new Exception($"FFprobe não encontrado em {FFPROBE_PATH}");
+            }
+
+            context.Logger.LogInformation("FFmpeg e FFprobe encontrados com sucesso!");
+
+            foreach (var message in evnt.Records)
+            {
+                await ProcessMessageAsync(message, context);
+            }
+        }
+        catch (Exception ex)
+        {
+            context.Logger.LogError($"Erro ao processar mensagens: {ex.Message}");
+            context.Logger.LogError($"Stack trace: {ex.StackTrace}");
+            throw;
         }
     }
 
     private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
     {
+        string videoId = null;
+        string localVideoPath = null;
+        string outputFolder = null;
+        string zipPath = null;
+
         try
         {
             var s3Event = JsonConvert.DeserializeObject<S3Event>(message.Body);
@@ -76,22 +106,44 @@ public class Function
                 return;
             }
 
-            var videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
+            videoId = Path.GetFileNameWithoutExtension(videoKey).Split('_')[0];
+            context.Logger.LogInformation($"Processando vídeo: {videoKey} (ID: {videoId})");
 
-            context.Logger.LogInformation($"Processando vídeo: {videoKey}");
+            try
+            {
+                await UpdateRedisStatus(videoId, "PROCESSING", context);
+                await UpdateDynamoMetadata(videoId, null, "PROCESSING", context);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogWarning($"Erro ao atualizar status inicial, mas continuando processamento: {ex.Message}");
+            }
 
-            await UpdateRedisStatus(videoId, "PROCESSING", context);
-            await UpdateDynamoMetadata(videoId, null, "PROCESSING", context);
-
-            var localVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
+            localVideoPath = Path.Combine(TEMP_DIR, Path.GetFileName(videoKey));
             await DownloadVideoFromS3(videoKey, localVideoPath);
+            context.Logger.LogInformation($"Vídeo baixado para {localVideoPath}");
 
-            var outputFolder = Path.Combine(TEMP_DIR, "images");
+            outputFolder = Path.Combine(TEMP_DIR, "images");
+            if (Directory.Exists(outputFolder))
+            {
+                Directory.Delete(outputFolder, true);
+            }
             Directory.CreateDirectory(outputFolder);
+            context.Logger.LogInformation($"Diretório de saída criado: {outputFolder}");
 
+            context.Logger.LogInformation("Obtendo informações do vídeo...");
             var mediaInfo = await FFmpeg.GetMediaInfo(localVideoPath);
+            if (mediaInfo == null)
+            {
+                throw new Exception("Não foi possível obter informações do vídeo");
+            }
+
             var duration = mediaInfo.Duration;
+            context.Logger.LogInformation($"Duração do vídeo: {duration.TotalSeconds} segundos");
+
             var interval = TimeSpan.FromSeconds(20);
+            var thumbnailCount = (int)(duration.TotalSeconds / interval.TotalSeconds);
+            context.Logger.LogInformation($"Gerando {thumbnailCount} thumbnails...");
 
             var tasks = new List<Task>();
             for (var currentTime = TimeSpan.Zero; currentTime < duration; currentTime += interval)
@@ -99,32 +151,73 @@ public class Function
                 var outputPath = Path.Combine(outputFolder, $"frame_at_{currentTime.TotalSeconds}.jpg");
                 var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(localVideoPath, outputPath, currentTime);
                 tasks.Add(conversion.Start());
-                context.Logger.LogInformation($"Thumbnail gerado: {outputPath}");
             }
 
             await Task.WhenAll(tasks);
+            context.Logger.LogInformation($"Gerados {thumbnailCount} thumbnails com sucesso");
 
             var zipFileName = $"{videoId}_thumbnails.zip";
-            var zipPath = Path.Combine(TEMP_DIR, zipFileName);
+            zipPath = Path.Combine(TEMP_DIR, zipFileName);
             ZipFile.CreateFromDirectory(outputFolder, zipPath);
+            context.Logger.LogInformation($"Arquivo ZIP criado: {zipPath}");
 
             var zipKey = $"thumbnails/{zipFileName}";
             await UploadZipToS3(zipPath, zipKey);
+            context.Logger.LogInformation($"ZIP enviado para S3: {zipKey}");
 
-            await UpdateRedisStatus(videoId, "COMPLETED", context);
-            await UpdateDynamoMetadata(videoId, zipKey, "COMPLETED", context);
-
-            File.Delete(localVideoPath);
-            File.Delete(zipPath);
-            Directory.Delete(outputFolder, true);
+            try
+            {
+                await UpdateRedisStatus(videoId, "COMPLETED", context);
+                await UpdateDynamoMetadata(videoId, zipKey, "COMPLETED", context);
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogWarning($"Erro ao atualizar status final, mas processamento foi concluído: {ex.Message}");
+            }
 
             context.Logger.LogInformation($"Processamento concluído para o vídeo: {videoKey}");
         }
         catch (Exception ex)
         {
             context.Logger.LogError($"Erro ao processar mensagem: {ex.Message}");
-            context.Logger.LogError($"StackTrace: {ex.StackTrace}");
+            context.Logger.LogError($"Stack trace: {ex.StackTrace}");
+
+            if (videoId != null)
+            {
+                try
+                {
+                    await UpdateRedisStatus(videoId, "ERROR", context);
+                    await UpdateDynamoMetadata(videoId, null, "ERROR", context);
+                }
+                catch (Exception updateEx)
+                {
+                    context.Logger.LogError($"Erro ao atualizar status de erro: {updateEx.Message}");
+                }
+            }
             throw;
+        }
+        finally
+        {
+            try
+            {
+                // Limpeza dos arquivos temporários
+                if (localVideoPath != null && File.Exists(localVideoPath))
+                {
+                    File.Delete(localVideoPath);
+                }
+                if (zipPath != null && File.Exists(zipPath))
+                {
+                    File.Delete(zipPath);
+                }
+                if (outputFolder != null && Directory.Exists(outputFolder))
+                {
+                    Directory.Delete(outputFolder, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogWarning($"Erro durante a limpeza dos arquivos temporários: {ex.Message}");
+            }
         }
     }
 
