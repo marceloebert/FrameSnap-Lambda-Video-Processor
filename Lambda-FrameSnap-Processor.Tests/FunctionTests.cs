@@ -3,8 +3,8 @@ using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
+//using Amazon.SimpleNotificationService;
+//using Amazon.SimpleNotificationService.Model;
 using Moq;
 using Moq.Protected;
 using System.Net;
@@ -24,7 +24,7 @@ namespace Lambda_FrameSnap_Processor.Tests
         private readonly Mock<IAmazonS3> _s3ClientMock;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         //private readonly Mock<IVideoProcessor> _mockVideoProcessor;
-        private readonly Mock<IAmazonSimpleNotificationService> _snsClientMock;
+        //private readonly Mock<IAmazonSimpleNotificationService> _snsClientMock;
         private readonly TestLambdaContext _context;
         private readonly Function _function;
         private readonly string _tempDir;
@@ -39,7 +39,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             //_mockVideoProcessor = new Mock<IVideoProcessor>();
-            _snsClientMock = new Mock<IAmazonSimpleNotificationService>();
+            //_snsClientMock = new Mock<IAmazonSimpleNotificationService>();
             _context = new TestLambdaContext();
 
             _tempDir = Path.Combine(Path.GetTempPath(), "test_lambda_" + Guid.NewGuid().ToString());
@@ -367,13 +367,13 @@ namespace Lambda_FrameSnap_Processor.Tests
 
        
 
-        private void SetupSNSMockForPublish()
-        {
-            _snsClientMock.Setup(x => x.PublishAsync(
-                It.IsAny<PublishRequest>(),
-                It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new PublishResponse());
-        }
+        //private void SetupSNSMockForPublish()
+        //{
+        //    _snsClientMock.Setup(x => x.PublishAsync(
+        //        It.IsAny<PublishRequest>(),
+        //        It.IsAny<CancellationToken>()))
+        //        .ReturnsAsync(new PublishResponse());
+        //}
 
         private SQSEvent CreateSQSEvent(string fileName)
         {
