@@ -20,8 +20,8 @@ public class Function
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
     private const string TEMP_DIR = "/tmp";
-    private const string FFMPEG_PATH = "/var/lang/bin/ffmpeg";
-    private const string FFPROBE_PATH = "/var/lang/bin/ffprobe";
+    private const string FFMPEG_PATH = "/opt/ffmpeg/ffmpeg";
+    private const string FFPROBE_PATH = "/opt/ffmpeg/ffprobe";
 
     // Construtor padrão para produção
     public Function()
@@ -37,7 +37,7 @@ public class Function
         _httpClient = httpClient;
 
         // Configurar caminhos do FFmpeg
-        FFmpeg.SetExecutablesPath("/var/lang/bin");
+        FFmpeg.SetExecutablesPath("/opt/ffmpeg");
     }
 
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
