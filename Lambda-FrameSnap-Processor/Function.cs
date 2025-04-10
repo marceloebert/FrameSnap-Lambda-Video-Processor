@@ -20,8 +20,8 @@ public class Function
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
     private const string TEMP_DIR = "/tmp";
-    private const string FFMPEG_PATH = "/opt/ffmpeg/ffmpeg";
-    private const string FFPROBE_PATH = "/opt/ffmpeg/ffprobe";
+    private string _ffmpegPath;
+    private string _ffprobePath;
 
     // Construtor padrão para produção
     public Function()
@@ -35,9 +35,41 @@ public class Function
 
         _s3Client = s3Client;
         _httpClient = httpClient;
+    }
 
-        // Configurar caminhos do FFmpeg
-        FFmpeg.SetExecutablesPath("/opt/ffmpeg");
+    private void InitializeFFmpeg(ILambdaContext context)
+    {
+        // Lista de possíveis caminhos para o FFmpeg, em ordem de preferência
+        var possiblePaths = new[]
+        {
+            ("/opt/ffmpeg/ffmpeg", "/opt/ffmpeg/ffprobe"),
+            ("/opt/ffmpeg", "/opt/ffprobe"),
+            ("/opt/bin/ffmpeg", "/opt/bin/ffprobe"),
+            ("/var/task/ffmpeg", "/var/task/ffprobe")
+        };
+
+        foreach (var (ffmpeg, ffprobe) in possiblePaths)
+        {
+            context.Logger.LogInformation($"Procurando FFmpeg em: {ffmpeg}");
+            if (File.Exists(ffmpeg))
+            {
+                _ffmpegPath = ffmpeg;
+                var ffmpegDir = Path.GetDirectoryName(ffmpeg);
+                context.Logger.LogInformation($"FFmpeg encontrado em: {ffmpegDir}");
+
+                // Verificar FFprobe apenas se FFmpeg foi encontrado
+                context.Logger.LogInformation($"Procurando FFprobe em: {ffprobe}");
+                if (File.Exists(ffprobe))
+                {
+                    _ffprobePath = ffprobe;
+                    context.Logger.LogInformation($"FFprobe encontrado em: {ffprobe}");
+                    FFmpeg.SetExecutablesPath(ffmpegDir);
+                    return;
+                }
+            }
+        }
+
+        throw new Exception("FFmpeg não encontrado em nenhum caminho conhecido");
     }
 
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
@@ -50,22 +82,8 @@ public class Function
 
         try
         {
-            // Verificar se o FFmpeg está disponível
-            context.Logger.LogInformation($"Verificando FFmpeg em {FFMPEG_PATH}");
-            if (!File.Exists(FFMPEG_PATH))
-            {
-                context.Logger.LogError($"FFmpeg não encontrado em {FFMPEG_PATH}");
-                throw new Exception($"FFmpeg não encontrado em {FFMPEG_PATH}");
-            }
-
-            context.Logger.LogInformation($"Verificando FFprobe em {FFPROBE_PATH}");
-            if (!File.Exists(FFPROBE_PATH))
-            {
-                context.Logger.LogError($"FFprobe não encontrado em {FFPROBE_PATH}");
-                throw new Exception($"FFprobe não encontrado em {FFPROBE_PATH}");
-            }
-
-            context.Logger.LogInformation("FFmpeg e FFprobe encontrados com sucesso!");
+            InitializeFFmpeg(context);
+            context.Logger.LogInformation("FFmpeg inicializado com sucesso!");
 
             foreach (var message in evnt.Records)
             {
