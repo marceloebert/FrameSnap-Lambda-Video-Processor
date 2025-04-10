@@ -20,8 +20,8 @@ public class Function
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
     private const string TEMP_DIR = "/tmp";
-    private const string FFMPEG_PATH = "/opt/ffmpeg/ffmpeg";
-    private const string FFPROBE_PATH = "/opt/ffmpeg/ffprobe";
+    private const string FFMPEG_PATH = "/opt/ffmpeg";
+    private const string FFPROBE_PATH = "/opt/ffprobe";
 
     // Construtor padrão para produção
     public Function()
@@ -37,7 +37,7 @@ public class Function
         _httpClient = httpClient;
 
         // Configurar caminhos do FFmpeg
-        FFmpeg.SetExecutablesPath("/opt/ffmpeg");
+        FFmpeg.SetExecutablesPath("/opt");
     }
 
     public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
@@ -54,8 +54,31 @@ public class Function
             context.Logger.LogInformation($"Verificando FFmpeg em {FFMPEG_PATH}");
             if (!File.Exists(FFMPEG_PATH))
             {
-                context.Logger.LogError($"FFmpeg não encontrado em {FFMPEG_PATH}");
-                throw new Exception($"FFmpeg não encontrado em {FFMPEG_PATH}");
+                // Tentar encontrar em outros caminhos comuns
+                var possiblePaths = new[]
+                {
+                    "/opt/ffmpeg",
+                    "/opt/ffmpeg/ffmpeg",
+                    "/opt/bin/ffmpeg",
+                    "/var/task/ffmpeg"
+                };
+
+                foreach (var path in possiblePaths)
+                {
+                    context.Logger.LogInformation($"Tentando encontrar FFmpeg em: {path}");
+                    if (File.Exists(path))
+                    {
+                        context.Logger.LogInformation($"FFmpeg encontrado em: {path}");
+                        FFmpeg.SetExecutablesPath(Path.GetDirectoryName(path));
+                        break;
+                    }
+                }
+
+                if (!File.Exists(FFMPEG_PATH))
+                {
+                    context.Logger.LogError($"FFmpeg não encontrado em nenhum caminho conhecido");
+                    throw new Exception($"FFmpeg não encontrado em nenhum caminho conhecido");
+                }
             }
 
             context.Logger.LogInformation($"Verificando FFprobe em {FFPROBE_PATH}");
