@@ -23,7 +23,7 @@ namespace Lambda_FrameSnap_Processor.Tests
     {
         private readonly Mock<IAmazonS3> _s3ClientMock;
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
-        private readonly Mock<IVideoProcessor> _mockVideoProcessor;
+        //private readonly Mock<IVideoProcessor> _mockVideoProcessor;
         private readonly Mock<IAmazonSimpleNotificationService> _snsClientMock;
         private readonly TestLambdaContext _context;
         private readonly Function _function;
@@ -38,7 +38,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             _s3ClientMock = new Mock<IAmazonS3>();
             _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-            _mockVideoProcessor = new Mock<IVideoProcessor>();
+            //_mockVideoProcessor = new Mock<IVideoProcessor>();
             _snsClientMock = new Mock<IAmazonSimpleNotificationService>();
             _context = new TestLambdaContext();
 
@@ -51,7 +51,7 @@ namespace Lambda_FrameSnap_Processor.Tests
             Environment.SetEnvironmentVariable("FFMPEG_PATH", "ffmpeg");
             Environment.SetEnvironmentVariable("SNS_TOPIC_ARN", TEST_SNS_TOPIC_ARN);
 
-            _function = new Function(_s3ClientMock.Object, httpClient, _mockVideoProcessor.Object, _snsClientMock.Object);
+            //_function = new Function(_s3ClientMock.Object, httpClient, _mockVideoProcessor.Object, _snsClientMock.Object);
         }
 
         public void Dispose()
