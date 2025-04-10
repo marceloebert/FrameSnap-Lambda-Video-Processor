@@ -71,7 +71,11 @@ public class Function
             throw new Exception("SNS_TOPIC_ARN não configurado");
 
         _s3Client = s3Client;
+        
+        // Configurar o HttpClient com timeout maior
+        httpClient.Timeout = TimeSpan.FromSeconds(30);
         _httpClient = httpClient;
+        
         _videoProcessor = videoProcessor;
         _snsClient = snsClient;
         _isTestEnvironment = isTestEnvironment;
@@ -293,7 +297,7 @@ public class Function
 
     private async Task UpdateRedisStatus(string videoId, string status, ILambdaContext context)
     {
-        const int maxRetries = 3;
+        const int maxRetries = 5; // Aumentado número de retries
         int retryCount = 0;
         bool success = false;
 
@@ -302,10 +306,20 @@ public class Function
             try
             {
                 context.Logger.LogInformation($"Tentativa {retryCount + 1} de atualizar status no Redis para o vídeo {videoId}");
+                context.Logger.LogInformation($"Fazendo requisição para: {API_BASE_URL}/status");
                 
-                var response = await _httpClient.PostAsync(
+                var content = new { videoId, status };
+                var jsonContent = JsonConvert.SerializeObject(content);
+                context.Logger.LogInformation($"Conteúdo da requisição: {jsonContent}");
+                
+                var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                using var response = await _httpClient.PostAsync(
                     $"{API_BASE_URL}/status",
-                    new StringContent(JsonConvert.SerializeObject(new { videoId, status }), Encoding.UTF8, "application/json"));
+                    stringContent);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                context.Logger.LogInformation($"Resposta recebida. Status code: {response.StatusCode}, Conteúdo: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -314,12 +328,11 @@ public class Function
                 }
                 else
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    context.Logger.LogError($"Erro ao atualizar status. Status code: {response.StatusCode}, Conteúdo: {errorContent}");
+                    context.Logger.LogError($"Erro ao atualizar status. Status code: {response.StatusCode}, Conteúdo: {responseContent}");
                     retryCount++;
                     if (retryCount < maxRetries)
                     {
-                        var delay = 1000 * (int)Math.Pow(2, retryCount); // Backoff exponencial
+                        var delay = 2000 * (int)Math.Pow(2, retryCount); // Aumentado delay inicial para 2 segundos
                         context.Logger.LogInformation($"Aguardando {delay}ms antes da próxima tentativa");
                         await Task.Delay(delay);
                     }
@@ -328,11 +341,18 @@ public class Function
             catch (Exception ex)
             {
                 context.Logger.LogError($"Erro ao atualizar status no Redis: {ex.Message}");
+                context.Logger.LogError($"Tipo da exceção: {ex.GetType().FullName}");
                 context.Logger.LogError($"Stack trace: {ex.StackTrace}");
+                
+                if (ex is HttpRequestException httpEx)
+                {
+                    context.Logger.LogError($"Status code: {httpEx.StatusCode}, Inner exception: {httpEx.InnerException?.Message}");
+                }
+                
                 retryCount++;
                 if (retryCount < maxRetries)
                 {
-                    var delay = 1000 * (int)Math.Pow(2, retryCount);
+                    var delay = 2000 * (int)Math.Pow(2, retryCount);
                     context.Logger.LogInformation($"Aguardando {delay}ms antes da próxima tentativa");
                     await Task.Delay(delay);
                 }
