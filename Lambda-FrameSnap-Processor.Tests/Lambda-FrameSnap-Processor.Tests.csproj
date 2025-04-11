@@ -15,10 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,9 +26,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="AWSSDK.Core" Version="3.7.302.15" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.402.38" />
     <PackageReference Include="AWSSDK.Lambda" Version="3.7.303.48" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.305.30" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.300.2" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.400.132" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.TestUtilities" Version="2.0.0" />
@@ -50,6 +48,8 @@
     <Using Include="Amazon.Lambda.SQSEvents" />
     <Using Include="Amazon.Lambda.TestUtilities" />
     <Using Include="Amazon.S3" />
+    <Using Include="Amazon.SQS" />
+    <Using Include="Amazon.SimpleNotificationService" />
     <Using Include="Xabe.FFmpeg" />
   </ItemGroup>
 
