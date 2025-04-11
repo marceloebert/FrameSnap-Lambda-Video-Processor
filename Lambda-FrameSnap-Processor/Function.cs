@@ -2,6 +2,8 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.IO.Compression;
@@ -17,24 +19,27 @@ public class Function
 {
     private readonly IAmazonS3 _s3Client;
     private readonly HttpClient _httpClient;
+    private readonly IAmazonSimpleNotificationService _snsClient;
     private readonly string BUCKET_NAME;
     private readonly string API_BASE_URL;
+    private readonly string SNS_TOPIC_ARN = "arn:aws:sns:us-east-1:339713138979:notificacoes-frameSnap";
     private const string TEMP_DIR = "/tmp";
     private string _ffmpegPath;
     private string _ffprobePath;
 
     // Construtor padrão para produção
     public Function()
-        : this(new AmazonS3Client(), new HttpClient()) { }
+        : this(new AmazonS3Client(), new HttpClient(), new AmazonSimpleNotificationServiceClient()) { }
 
     // Construtor com injeção de dependência para testes
-    public Function(IAmazonS3 s3Client, HttpClient httpClient)
+    public Function(IAmazonS3 s3Client, HttpClient httpClient, IAmazonSimpleNotificationService snsClient)
     {
         BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
         API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a7ab35083428b4f2389d506576ae8224-1198331366.us-east-1.elb.amazonaws.com";
 
         _s3Client = s3Client;
         _httpClient = httpClient;
+        _snsClient = snsClient;
     }
 
     private void InitializeFFmpeg(ILambdaContext context)
@@ -187,6 +192,9 @@ public class Function
             {
                 await UpdateRedisStatus(videoId, "COMPLETED", context);
                 await UpdateDynamoMetadata(videoId, zipKey, "COMPLETED", context);
+                
+                // Enviar notificação SNS de sucesso
+                await SendSnsNotification(videoId, "COMPLETED", zipKey, context);
             }
             catch (Exception ex)
             {
@@ -206,6 +214,9 @@ public class Function
                 {
                     await UpdateRedisStatus(videoId, "ERROR", context);
                     await UpdateDynamoMetadata(videoId, null, "ERROR", context);
+                    
+                    // Enviar notificação SNS de erro
+                    await SendSnsNotification(videoId, "ERROR", null, context);
                 }
                 catch (Exception updateEx)
                 {
@@ -311,6 +322,37 @@ public class Function
         {
             context.Logger.LogError($"Erro ao atualizar metadados no DynamoDB: {ex.Message}");
             throw;
+        }
+    }
+
+    private async Task SendSnsNotification(string videoId, string status, string zipKey, ILambdaContext context)
+    {
+        try
+        {
+            context.Logger.LogInformation($"Enviando notificação SNS para vídeo {videoId} com status {status}");
+            
+            var message = new
+            {
+                videoId = videoId,
+                status = status,
+                thumbnailUrl = zipKey != null ? $"https://{BUCKET_NAME}.s3.amazonaws.com/{zipKey}" : null,
+                timestamp = DateTime.UtcNow.ToString("o")
+            };
+            
+            var request = new PublishRequest
+            {
+                TopicArn = SNS_TOPIC_ARN,
+                Message = JsonConvert.SerializeObject(message),
+                Subject = $"FrameSnap - Processamento de Vídeo {videoId} - {status}"
+            };
+            
+            var response = await _snsClient.PublishAsync(request);
+            context.Logger.LogInformation($"Notificação SNS enviada com sucesso. MessageId: {response.MessageId}");
+        }
+        catch (Exception ex)
+        {
+            context.Logger.LogError($"Erro ao enviar notificação SNS: {ex.Message}");
+            // Não lançamos a exceção para não interromper o fluxo principal
         }
     }
 }
