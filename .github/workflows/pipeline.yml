@@ -42,8 +42,11 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Install SonarCloud scanner
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Install tools
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Begin SonarCloud analysis
         env:
@@ -70,10 +73,14 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.sln \
             --no-build \
             --configuration Release \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=coverage/coverage.opencover.xml
-
+            --collect:"XPlat Code Coverage"
+          reportgenerator \
+            -reports:**/TestResults/*/coverage.cobertura.xml \
+            -targetdir:coverage \
+            -reporttypes:opencover \
+            -filefilters:-*.g.cs \
+            -historydir:coverage-history
+          mv coverage/opencover.xml coverage/coverage.opencover.xml
 
       - name: End SonarCloud analysis
         env:
