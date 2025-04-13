@@ -54,7 +54,7 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
 
@@ -70,8 +70,11 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            -p:CoverletOutputFormat=opencover
+            --collect:"XPlat Code Coverage"
+
+      - name: Rename cobertura file to opencover
+        run: |
+          cp $(find . -type f -name 'coverage.cobertura.xml') coverage/coverage.opencover.xml
 
       - name: End SonarCloud analysis
         env:
@@ -82,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: '**/coverage.opencover.xml'
+          path: 'coverage/coverage.opencover.xml'
 
   build-and-package:
     runs-on: ubuntu-latest
