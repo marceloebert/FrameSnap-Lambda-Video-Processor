@@ -54,9 +54,10 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+            /d:sonar.cs.cobertura.reportsPaths="coverage/coverage.cobertura.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
+
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
 
@@ -69,8 +70,10 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            -p:CoverletOutputFormat=opencover
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=coverage/coverage
+
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -80,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: '**/coverage.opencover.xml'
+          path: coverage/coverage.cobertura.xml
 
   build-and-package:
     runs-on: ubuntu-latest
@@ -100,6 +103,7 @@ jobs:
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - name: Restore project
         working-directory: Lambda-FrameSnap-Processor
         run: dotnet restore
@@ -110,6 +114,7 @@ jobs:
           dotnet lambda package \
             --configuration Release \
             --output-package ../Lambda-FrameSnap-Processor.zip
+
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
         with:
