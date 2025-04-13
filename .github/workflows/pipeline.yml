@@ -54,10 +54,9 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
-            /d:sonar.branch.name="main" \
-            /d:sonar.cs.cobertura.reportsPaths=Lambda-FrameSnap-Processor.Tests/TestResults/**/coverage.cobertura.xml
-
+            /d:sonar.branch.name="main"
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
 
@@ -67,13 +66,11 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           mkdir -p coverage
-          dotnet test Lambda-FrameSnap-Processor.sln \
+          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage"
-          
-          find . -name 'coverage.cobertura.xml' -exec cp {} coverage/coverage.cobertura.xml \;
-
+            --collect:"XPlat Code Coverage" \
+            -p:CoverletOutputFormat=opencover
       - name: End SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -83,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.cobertura.xml
+          path: '**/coverage.opencover.xml'
 
   build-and-package:
     runs-on: ubuntu-latest
@@ -103,7 +100,6 @@ jobs:
         run: |
           dotnet tool install -g Amazon.Lambda.Tools
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
       - name: Restore project
         working-directory: Lambda-FrameSnap-Processor
         run: dotnet restore
@@ -114,7 +110,6 @@ jobs:
           dotnet lambda package \
             --configuration Release \
             --output-package ../Lambda-FrameSnap-Processor.zip
-
       - name: Upload Lambda package
         uses: actions/upload-artifact@v4
         with:
