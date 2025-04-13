@@ -67,12 +67,13 @@ jobs:
       - name: Run Unit Tests with Coverage
         run: |
           mkdir -p coverage
-          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
+          dotnet test Lambda-FrameSnap-Processor.sln \
             --no-build \
             --configuration Release \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=../../coverage/coverage.opencover.xml
+            /p:CoverletOutput=coverage/coverage.opencover.xml
+
 
       - name: End SonarCloud analysis
         env:
