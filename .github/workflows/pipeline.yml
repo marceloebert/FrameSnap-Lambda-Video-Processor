@@ -69,13 +69,14 @@ jobs:
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            -p:CoverletOutputFormat=cobertura
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput=coverage/
 
       - name: Copiar e renomear relátorio de cobertura
         run: |
           mkdir -p coverage
-          FILE=$(find ./Lambda-FrameSnap-Processor.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          FILE=$(find . -type f -name 'coverage.opencover.xml' | head -n 1)
           echo "Arquivo de cobertura localizado em: $FILE"
           cp "$FILE" coverage/coverage.opencover.xml
 
