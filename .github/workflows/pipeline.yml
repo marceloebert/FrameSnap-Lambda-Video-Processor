@@ -42,8 +42,11 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Install SonarCloud scanner
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Install tools (SonarScanner and dotnet-coverage)
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global dotnet-coverage
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
       - name: Begin SonarCloud analysis
         env:
@@ -54,7 +57,7 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
 
@@ -64,18 +67,13 @@ jobs:
       - name: Build solution
         run: dotnet build Lambda-FrameSnap-Processor.sln --configuration Release --no-restore
 
-      - name: Run Unit Tests with OpenCover Coverage
+      - name: Run Unit Tests with dotnet-coverage
         run: |
-          mkdir -p coverage
-          dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
-            --no-build \
-            --configuration Release \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=../coverage/coverage
-            
-      - name: List files in coverage dir (debug)
-        run: ls -R coverage
+          dotnet-coverage collect "dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj --no-build --configuration Release" \
+            -f xml -o coverage.xml
+
+      - name: Debug coverage output
+        run: cat coverage.xml || echo "Coverage file not found!"
 
       - name: End SonarCloud analysis
         env:
@@ -86,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.opencover.xml
+          path: coverage.xml
 
   build-and-package:
     runs-on: ubuntu-latest
