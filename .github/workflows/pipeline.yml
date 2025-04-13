@@ -71,8 +71,7 @@ jobs:
             --configuration Release \
             --collect:"XPlat Code Coverage"
           
-          mkdir -p coverage
-          cp $(find . -path "*TestResults*" -name "coverage.cobertura.xml") coverage/coverage.cobertura.xml
+          find . -name 'coverage.cobertura.xml' -exec cp {} coverage/coverage.cobertura.xml \;
 
       - name: End SonarCloud analysis
         env:
