@@ -54,7 +54,7 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.cobertura.reportsPaths="coverage/coverage.cobertura.xml" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
 
@@ -64,14 +64,14 @@ jobs:
       - name: Build solution
         run: dotnet build Lambda-FrameSnap-Processor.sln --configuration Release --no-restore
 
-      - name: Run Unit Tests with Coverage
+      - name: Run Unit Tests with OpenCover Coverage
         run: |
           mkdir -p coverage
           dotnet test Lambda-FrameSnap-Processor.Tests/Lambda-FrameSnap-Processor.Tests.csproj \
             --no-build \
             --configuration Release \
             /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=coverage/coverage
 
       - name: End SonarCloud analysis
@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.cobertura.xml
+          path: coverage/coverage.opencover.xml
 
   build-and-package:
     runs-on: ubuntu-latest
