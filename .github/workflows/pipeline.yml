@@ -72,7 +72,10 @@ jobs:
             --configuration Release \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=coverage/coverage
+            /p:CoverletOutput=../coverage/coverage
+            
+      - name: List files in coverage dir (debug)
+        run: ls -R coverage
 
       - name: End SonarCloud analysis
         env:
