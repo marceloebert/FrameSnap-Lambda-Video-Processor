@@ -75,7 +75,7 @@ jobs:
       - name: Copiar e renomear relátorio de cobertura
         run: |
           mkdir -p coverage
-          FILE=$(find . -type f -name 'coverage.cobertura.xml' | head -n 1)
+          FILE=$(find ./Lambda-FrameSnap-Processor.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
           echo "Arquivo de cobertura localizado em: $FILE"
           cp "$FILE" coverage/coverage.opencover.xml
 
