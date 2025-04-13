@@ -56,7 +56,7 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main" \
-            /d:sonar.cs.opencover.reportsPaths=coverage/coverage.cobertura.xml
+            /d:sonar.cs.cobertura.reportsPaths=coverage/coverage.cobertura.xml
 
       - name: Restore dependencies
         run: dotnet restore Lambda-FrameSnap-Processor.sln
