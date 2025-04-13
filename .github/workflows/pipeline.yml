@@ -42,11 +42,8 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Install tools
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      - name: Install SonarCloud scanner
+        run: dotnet tool install --global dotnet-sonarscanner
 
       - name: Begin SonarCloud analysis
         env:
@@ -57,7 +54,7 @@ jobs:
             /o:"${{ env.SONAR_ORGANIZATION }}" \
             /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" \
             /d:sonar.token="${SONAR_TOKEN}" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" \
+            /d:sonar.cs.cobertura.reportsPaths="coverage/coverage.cobertura.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
             /d:sonar.branch.name="main"
 
@@ -69,18 +66,13 @@ jobs:
 
       - name: Run Unit Tests with Coverage
         run: |
-          mkdir -p coverage
           dotnet test Lambda-FrameSnap-Processor.sln \
             --no-build \
             --configuration Release \
             --collect:"XPlat Code Coverage"
-          reportgenerator \
-            -reports:**/TestResults/*/coverage.cobertura.xml \
-            -targetdir:coverage \
-            -reporttypes:opencover \
-            -filefilters:-*.g.cs \
-            -historydir:coverage-history
-          mv coverage/opencover.xml coverage/coverage.opencover.xml
+          
+          mkdir -p coverage
+          cp $(find . -path "*TestResults*" -name "coverage.cobertura.xml") coverage/coverage.cobertura.xml
 
       - name: End SonarCloud analysis
         env:
@@ -91,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage/coverage.opencover.xml
+          path: coverage/coverage.cobertura.xml
 
   build-and-package:
     runs-on: ubuntu-latest
