@@ -319,5 +319,72 @@ namespace Lambda_FrameSnap_Processor.Tests
                 }
             };
         }
+
+        [Fact]
+        public void S3Bucket_GetAndSetName_Works()
+        {
+            // Arrange
+            var bucket = new S3Bucket();
+
+            // Act
+            bucket.Name = "test-bucket";
+
+            // Assert
+            Assert.Equal("test-bucket", bucket.Name);
+        }
+
+        [Fact]
+        public void S3Details_SetAndGet_S3ObjectAndBucket()
+        {
+            // Arrange
+            var details = new S3Details();
+            var bucket = new S3Bucket { Name = "mock-bucket" };
+            var obj = new S3Object { Key = "mock-key" };
+
+            // Act
+            details.Bucket = bucket;
+            details.Object = obj;
+
+            // Assert
+            Assert.Equal("mock-bucket", details.Bucket.Name);
+            Assert.Equal("mock-key", details.Object.Key);
+        }
+
+        [Fact]
+        public void S3EventRecord_SetAndGet_S3Details()
+        {
+            // Arrange
+            var record = new S3EventRecord();
+            var details = new S3Details
+            {
+                Bucket = new S3Bucket { Name = "bucket123" },
+                Object = new S3Object { Key = "video.mp4" }
+            };
+
+            // Act
+            record.S3 = details;
+
+            // Assert
+            Assert.Equal("bucket123", record.S3.Bucket.Name);
+            Assert.Equal("video.mp4", record.S3.Object.Key);
+        }
+
+        [Fact]
+        public void S3Event_SetAndGet_Records()
+        {
+            // Arrange
+            var s3Event = new S3Event();
+            var records = new List<S3EventRecord>
+            {
+        new S3EventRecord { S3 = new S3Details { Bucket = new S3Bucket { Name = "bucket" }, Object = new S3Object { Key = "key" } } }
+    };
+
+            // Act
+            s3Event.Records = records;
+
+            // Assert
+            Assert.Single(s3Event.Records);
+            Assert.Equal("bucket", s3Event.Records[0].S3.Bucket.Name);
+        }
     }
 }
