@@ -1,51 +1,145 @@
-# AWS Lambda Simple SQS Function Project
+# FrameSnap - Processador de Vídeos AWS Lambda
 
-This starter project consists of:
-* Function.cs - class file containing a class with a single function handler method
-* aws-lambda-tools-defaults.json - default argument settings for use with Visual Studio and command line deployment tools for AWS
+O FrameSnap é um serviço serverless que processa vídeos automaticamente, extraindo frames em intervalos regulares e gerando thumbnails. O serviço é construído usando AWS Lambda e integra diversos serviços AWS para fornecer uma solução robusta e escalável.
 
-You may also have a test project depending on the options selected.
+## 🚀 Tecnologias
 
-The generated function handler responds to events on an Amazon SQS queue.
+- **.NET 8.0**: Framework principal do projeto
+- **AWS Lambda**: Ambiente de execução serverless
+- **AWS S3**: Armazenamento de vídeos e thumbnails
+- **AWS SQS**: Fila de mensagens para processamento assíncrono
+- **AWS SNS**: Notificações de eventos
+- **FFmpeg**: Processamento de vídeo (via Lambda Layer)
+- **Redis**: Cache e controle de status
+- **DynamoDB**: Armazenamento de metadados
 
-After deploying your function you must configure an Amazon SQS queue as an event source to trigger your Lambda function.
+## 📋 Pré-requisitos
 
-## Here are some steps to follow from Visual Studio:
+- .NET 8.0 SDK
+- AWS CLI configurado
+- FFmpeg Layer configurado no Lambda
+- Acesso às seguintes permissões AWS:
+  - `s3:GetObject`
+  - `s3:PutObject`
+  - `sqs:ReceiveMessage`
+  - `sns:Publish`
+  - `dynamodb:PutItem`
+  - `dynamodb:GetItem`
 
-To deploy your function to AWS Lambda, right click the project in Solution Explorer and select *Publish to AWS Lambda*.
+## 🔧 Configuração
 
-To view your deployed function open its Function View window by double-clicking the function name shown beneath the AWS Lambda node in the AWS Explorer tree.
+### Variáveis de Ambiente
 
-To perform testing against your deployed function use the Test Invoke tab in the opened Function View window.
-
-To configure event sources for your deployed function use the Event Sources tab in the opened Function View window.
-
-To update the runtime configuration of your deployed function use the Configuration tab in the opened Function View window.
-
-To view execution logs of invocations of your function use the Logs tab in the opened Function View window.
-
-## Here are some steps to follow to get started from the command line:
-
-Once you have edited your template and code you can deploy your application using the [Amazon.Lambda.Tools Global Tool](https://github.com/aws/aws-extensions-for-dotnet-cli#aws-lambda-amazonlambdatools) from the command line.
-
-Install Amazon.Lambda.Tools Global Tools if not already installed.
-```
-    dotnet tool install -g Amazon.Lambda.Tools
-```
-
-If already installed check if new version is available.
-```
-    dotnet tool update -g Amazon.Lambda.Tools
-```
-
-Execute unit tests
-```
-    cd "Lambda-FrameSnap-Processor/test/Lambda-FrameSnap-Processor.Tests"
-    dotnet test
+```env
+BUCKET_NAME=nome-do-bucket-s3
+API_BASE_URL=url-da-api
+TEMP_DIR=/tmp
+FFMPEG_PATH=/opt/ffmpeg
+SNS_TOPIC_ARN=arn:aws:sns:region:account:topic
 ```
 
-Deploy function to AWS Lambda
+### Estrutura do Projeto
+
 ```
-    cd "Lambda-FrameSnap-Processor/src/Lambda-FrameSnap-Processor"
-    dotnet lambda deploy-function
+Lambda-Framesnap-Video-Processor/
+├── Lambda-FrameSnap-Processor/        # Projeto principal
+│   ├── Function.cs                    # Handler principal
+│   └── Lambda-FrameSnap-Processor.csproj
+├── Lambda-FrameSnap-Processor.Tests/  # Testes unitários
+│   └── FunctionTests.cs
+└── ffmpeg-layer/                      # Layer do FFmpeg
 ```
+
+## 🎯 Funcionalidades
+
+### Processamento de Vídeo
+- Extração automática de frames em intervalos regulares
+- Geração de thumbnails em diferentes resoluções
+- Suporte a múltiplos formatos de vídeo (MP4, AVI, MOV)
+- Compressão e otimização de imagens
+
+### Integrações
+- **S3**: Armazenamento de vídeos e thumbnails
+- **SQS**: Fila de processamento assíncrono
+- **SNS**: Notificações de status e conclusão
+- **Redis**: Cache e controle de status em tempo real
+- **DynamoDB**: Armazenamento de metadados e informações do vídeo
+
+## 📝 Endpoints e Eventos
+
+### SQS Event
+```json
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "bucket-name"
+        },
+        "object": {
+          "key": "video-key.mp4"
+        }
+      }
+    }
+  ]
+}
+```
+
+### SNS Notifications
+```json
+{
+  "videoId": "string",
+  "status": "PROCESSING|COMPLETED|FAILED",
+  "zipKey": "string",
+  "timestamp": "ISO8601"
+}
+```
+
+## 🧪 Testes
+
+### Execução dos Testes
+```bash
+dotnet test
+```
+
+### Cobertura de Testes
+- Testes unitários para todos os fluxos principais
+- Mocks para serviços externos (S3, SNS, Redis)
+- Validação de formatos de vídeo
+- Tratamento de erros
+
+## 📦 Deployment
+
+### Lambda Layer (FFmpeg)
+1. Criar layer com FFmpeg
+2. Configurar path em `/opt/ffmpeg`
+3. Anexar layer à função Lambda
+
+### Função Lambda
+```bash
+dotnet lambda deploy-function
+```
+
+## 🔍 Monitoramento
+
+### CloudWatch Logs
+- Logs detalhados de processamento
+- Métricas de performance
+- Rastreamento de erros
+
+### Métricas
+- Tempo de processamento
+- Tamanho dos arquivos
+- Taxa de sucesso/falha
+
+## ⚠️ Limitações
+
+- Tamanho máximo do vídeo: 500MB
+- Duração máxima: 2 horas
+- Formatos suportados: MP4, AVI, MOV
+
+## 🔐 Segurança
+
+- IAM Roles com permissões mínimas necessárias
+- Validação de inputs
+- Sanitização de nomes de arquivo
