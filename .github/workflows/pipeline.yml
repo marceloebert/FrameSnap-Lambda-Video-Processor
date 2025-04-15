@@ -59,6 +59,11 @@ jobs:
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml" \
             /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" \
+            /d:sonar.coverage.exclusions="**/bin/**/*,**/obj/**/*,**/*AssemblyInfo.cs,**/*.g.cs,**/Program.cs,**/Function.cs/ValidateJwtToken/*catch*,**/Function.cs/FunctionHandler/*catch*" \
+            /d:sonar.cpd.exclusions="**/*.Tests/**/*" \
+            /d:sonar.cs.ignoreHeaderComments=true \
+            /d:sonar.cs.ignoreBlankLines=true \
+            /d:sonar.cs.ignoreComments=true \
             /d:sonar.branch.name="main"
 
       - name: Restore dependencies

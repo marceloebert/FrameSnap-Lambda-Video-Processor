@@ -35,7 +35,7 @@ public class Function
     public Function(IAmazonS3 s3Client, HttpClient httpClient, IAmazonSimpleNotificationService snsClient)
     {
         BUCKET_NAME = Environment.GetEnvironmentVariable("BUCKET_NAME") ?? "framesnap-video-bucket";
-        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a65f7d678ccd0469ba97728784513106-1518254404.us-east-1.elb.amazonaws.com";
+        API_BASE_URL = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://a8e3cd4e5f0b349dd8d4c43539afbca8-39016098.us-east-1.elb.amazonaws.com";
 
         _s3Client = s3Client;
         _httpClient = httpClient;
